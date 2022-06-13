@@ -1,6 +1,6 @@
 export {
   HTTPError,
-  InvalidRequesterror,
+  InvalidRequestError,
   NotFoundError,
   ServerError,
   UnauthorizedError,

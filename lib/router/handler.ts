@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse, NextApiHandler } from 'next';
-import { NotFoundError } from '../http-errors';
+import { NotFoundError, InvalidRequestError } from '../http-errors';
+import type { ObjectSchema } from 'joi';
 
 export abstract class Handler {
   private static HTTP_METHODS = new Set<string>([
@@ -13,6 +14,34 @@ export abstract class Handler {
     'trace',
     'patch',
   ]);
+
+  protected requireBody<T extends object>(
+    req: NextApiRequest,
+    res: NextApiResponse,
+    schema: ObjectSchema<T>,
+    bodyHandler: (bodyParsed: T) => void
+  ) {
+    let bodyParsed: T;
+    try {
+      bodyParsed = JSON.parse(req.body);
+    } catch (e) {
+      const error = new InvalidRequestError(
+        'CORRUPTED_BODY',
+        'The body you provided does not match required scheme'
+      );
+      return res.status(error.status).json(error);
+    }
+
+    const validationResult = schema.validate(bodyParsed);
+    if (validationResult.error) {
+      const error = new InvalidRequestError(
+        'INCORRECT_BODY',
+        'The body you provided does not match required scheme'
+      );
+      return res.status(error.status).json(error);
+    }
+    return bodyHandler(validationResult.value);
+  }
 
   protected defaultNotFound(_: unknown, res: NextApiResponse) {
     const error = new NotFoundError('NOT_FOUND', 'Cannot process the request');
