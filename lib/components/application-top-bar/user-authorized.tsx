@@ -36,15 +36,7 @@ export function UserAuthorized() {
       </RequireSession>
       <Menu
         anchorEl={anchorEl}
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
         keepMounted
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
         open={menuOpen}
         onClose={() => {
           setMenuOpen(false);
