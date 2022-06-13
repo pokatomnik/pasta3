@@ -20,7 +20,7 @@ export class UnauthorizedError extends HTTPError {
   }
 }
 
-export class InvalidRequesterror extends HTTPError {
+export class InvalidRequestError extends HTTPError {
   public constructor(code: string, message: string) {
     super(400, code, message);
   }

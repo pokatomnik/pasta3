@@ -1,9 +1,55 @@
-import { NextApiHandler } from 'next';
+import { NextApiHandler, NextApiRequest, NextApiResponse } from 'next';
 import { Handler } from './handler';
 import { getSession } from 'next-auth/react';
+import { ISODateString } from 'next-auth';
 import { ServerError, UnauthorizedError } from '../http-errors';
 
+interface CustomSession {
+  user: {
+    name?: string | null;
+    email: string;
+    image?: string | null;
+  };
+  expires: ISODateString;
+}
+
 export abstract class RestrictedHandler extends Handler {
+  protected async requireSessionWithEmail(
+    req: NextApiRequest,
+    res: NextApiResponse,
+    handlerWithSession: (session: CustomSession) => void
+  ) {
+    try {
+      const originalSession = await getSession({ req });
+      if (!originalSession) {
+        throw new Error('Unauthorized');
+      }
+      const { expires, user } = originalSession;
+      if (!user) {
+        throw new Error('No user in session');
+      }
+      const { email } = user;
+      if (!email) {
+        throw new Error('No user email in session');
+      }
+      return handlerWithSession({
+        expires,
+        user: {
+          ...user,
+          email,
+        },
+      });
+    } catch (e) {
+      if (res.headersSent) {
+        return;
+      }
+      const errorOriginal: Error =
+        e instanceof Error ? e : new Error('Unknown error');
+      const error = new UnauthorizedError('UNAUTHORIED', errorOriginal.message);
+      return res.status(error.status).json(error);
+    }
+  }
+
   public override internalHandle(): NextApiHandler<unknown> {
     const originalHandler = super.internalHandle();
     return async (request, response) => {
