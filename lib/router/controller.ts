@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse, NextApiHandler } from 'next';
 import { NotFoundError, InvalidRequestError } from '../http-errors';
 import type { ObjectSchema } from 'joi';
 
-export abstract class Handler {
+export class Controller {
   private static HTTP_METHODS = new Set<string>([
     'get',
     'head',
@@ -87,7 +87,7 @@ export abstract class Handler {
   public internalHandle(): NextApiHandler<unknown> {
     return (request, response) => {
       const httpMethod = request.method?.toLocaleLowerCase();
-      if (!httpMethod || !Handler.HTTP_METHODS.has(httpMethod)) {
+      if (!httpMethod || !Controller.HTTP_METHODS.has(httpMethod)) {
         return this.defaultNotFound(request, response);
       }
       switch (httpMethod) {

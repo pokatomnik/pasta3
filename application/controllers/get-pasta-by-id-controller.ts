@@ -1,11 +1,17 @@
 import Joi from 'joi';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { InvalidRequestError, ServerError } from '../../../lib/http-errors';
-import { registerHandler, RestrictedHandler } from '../../../lib/router';
-import { Store } from '../../../lib/store';
+import { InvalidRequestError, ServerError } from '../../lib/http-errors';
+import { RestrictedController } from '../../lib/router';
+import { IStore } from '../../lib/store';
 
-class GetByIdHandler extends RestrictedHandler {
-  private readonly store = new Store();
+export class GetPastaByIdController extends RestrictedController {
+  public constructor(
+    private readonly params: {
+      store: IStore;
+    }
+  ) {
+    super();
+  }
 
   private readonly validator = Joi.string().required().length(24);
 
@@ -26,7 +32,7 @@ class GetByIdHandler extends RestrictedHandler {
       }
 
       try {
-        const pasta = await this.store.pastaStore.getPasta(
+        const pasta = await this.params.store.pastaStore.getPasta(
           session.user.email,
           validationResult.value
         );
@@ -41,5 +47,3 @@ class GetByIdHandler extends RestrictedHandler {
     });
   }
 }
-
-export default registerHandler(GetByIdHandler);

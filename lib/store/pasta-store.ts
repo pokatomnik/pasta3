@@ -1,4 +1,4 @@
-import type { Pasta } from '../domain/pasta';
+import type { Pasta } from '../../domain/pasta';
 
 export interface IPastaStore {
   createPasta(email: string, name: string, content: string): Promise<Pasta>;
