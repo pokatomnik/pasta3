@@ -1,11 +1,10 @@
 import Joi from 'joi';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { Pasta } from '../../domain/pasta';
 import { ServerError } from '../../lib/http-errors';
 import { RestrictedController } from '../../lib/router';
 import type { IStore } from '../../lib/store';
 
-export class GetPastaByIdController extends RestrictedController {
+export class RemovePastaByIdController extends RestrictedController {
   public constructor(
     private readonly params: {
       store: IStore;
@@ -15,26 +14,26 @@ export class GetPastaByIdController extends RestrictedController {
     super();
   }
 
-  public override async get(
+  public override async delete(
     request: NextApiRequest,
-    response: NextApiResponse<ServerError | Pasta | null>
+    response: NextApiResponse<unknown>
   ) {
-    return this.requireSessionWithEmail(request, response, async (session) => {
+    return this.requireSessionWithEmail(request, response, (session) => {
       return this.requireQuery(
         request,
         response,
         this.params.validator,
         async (query) => {
           try {
-            const pasta = await this.params.store.pastaStore.getPasta(
+            await this.params.store.pastaStore.deletePasta(
               session.user.email,
               query.id
             );
-            return response.status(200).json(pasta);
+            return response.status(200).end();
           } catch (e) {
             const error = new ServerError(
-              'GET_PASTA_FAILED',
-              'Failed to get pasta'
+              'FAILED_REMOVE_PASTA',
+              'Failed to remove pasta'
             );
             return response.status(error.status).json(error);
           }
