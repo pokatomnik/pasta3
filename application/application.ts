@@ -4,9 +4,12 @@ import { HelloController } from './controllers/hello-controller';
 import { PastaController } from './controllers/pasta-controller';
 import type { IStore } from '../lib/store';
 import { Store } from './services/store';
+import { UrlSchema } from './services/url-schema';
 
 export class Application {
   private readonly store: IStore = new Store();
+
+  private readonly urlSchema = new UrlSchema({ version: 1 });
 
   private readonly controllers = {
     notFound: new Controller(),
@@ -35,11 +38,14 @@ export class Application {
   private readonly router = new Router({
     notFoundHandler: this.controllers.notFound,
   })
-    .addHandler('/v1/hello', this.controllers.hello)
-    .addHandler('/v1/pastas', this.controllers.pasta)
-    .addHandler('/v1/pastas/id/{id}', this.controllers.pasta)
-    .addHandler('/v1/pastas/{from}', this.controllers.pasta)
-    .addHandler('/v1/pastas/{from}/{limit}', this.controllers.pasta);
+    .addHandler(this.urlSchema.hello().pattern, this.controllers.hello)
+    .addHandler(this.urlSchema.pasta().pattern, this.controllers.pasta)
+    .addHandler(this.urlSchema.pastaById().pattern, this.controllers.pasta)
+    .addHandler(this.urlSchema.pastaFrom().pattern, this.controllers.pasta)
+    .addHandler(
+      this.urlSchema.pastaFromLimit().pattern,
+      this.controllers.pasta
+    );
 
   public getDefaultNotFoundHandler() {
     return this.router.notFoundHandler();
