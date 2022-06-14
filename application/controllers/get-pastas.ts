@@ -1,14 +1,18 @@
 import Joi from 'joi';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { Pasta } from '../../domain/pasta';
 import { ServerError } from '../../lib/http-errors';
 import { RestrictedController } from '../../lib/router';
 import type { IStore } from '../../lib/store';
 
-export class GetPastaByIdController extends RestrictedController {
+export class GetPastasController extends RestrictedController {
   public constructor(
     private readonly params: {
       store: IStore;
-      validator: Joi.ObjectSchema<{ id: string }>;
+      validator: Joi.ObjectSchema<{
+        from?: number;
+        limit?: number;
+      }>;
     }
   ) {
     super();
@@ -16,24 +20,26 @@ export class GetPastaByIdController extends RestrictedController {
 
   public override async get(
     request: NextApiRequest,
-    response: NextApiResponse<unknown>
+    response: NextApiResponse<ServerError | Array<Pasta>>
   ) {
-    return this.requireSessionWithEmail(request, response, async (session) => {
+    return this.requireSessionWithEmail(request, response, (session) => {
       return this.requireQuery(
         request,
         response,
         this.params.validator,
         async (query) => {
+          const { from = 0, limit = Number.MAX_SAFE_INTEGER } = query;
           try {
-            const pasta = await this.params.store.pastaStore.getPasta(
+            const pastas = await this.params.store.pastaStore.getPastas(
               session.user.email,
-              query.id
+              from,
+              limit
             );
-            return response.status(200).json(pasta);
+            return response.json(pastas);
           } catch (e) {
             const error = new ServerError(
-              'GET_PASTA_FAILED',
-              'Failed to get pasta'
+              'FAILED_GET_PASTAS',
+              'Failed to get all pastas'
             );
             return response.status(error.status).json(error);
           }

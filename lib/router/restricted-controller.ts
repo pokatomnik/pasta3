@@ -58,7 +58,6 @@ export abstract class RestrictedController extends Controller {
         if (session) {
           return originalHandler(request, response);
         } else {
-          debugger;
           const error = new UnauthorizedError(
             'UNAUTHORIZED',
             'User is not authorized'

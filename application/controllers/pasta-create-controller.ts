@@ -9,40 +9,41 @@ export class PastaCreateController extends RestrictedController {
   public constructor(
     private readonly params: {
       store: IStore;
+      validator: Joi.ObjectSchema<{
+        name: string;
+        content: string;
+      }>;
     }
   ) {
     super();
   }
 
-  private readonly validator = Joi.object<{
-    name: string;
-    content: string;
-  }>({
-    name: Joi.string().required().min(1),
-    content: Joi.string().required().min(1),
-  }).strict();
-
   public override async post(
     request: NextApiRequest,
     response: NextApiResponse<Pasta | InvalidRequestError>
   ) {
-    return this.requireSessionWithEmail(request, response, (session) =>
-      this.requireBody(request, response, this.validator, async (body) => {
-        try {
-          const result = await this.params.store.pastaStore.createPasta(
-            session.user.email,
-            body.name,
-            body.content
-          );
-          return response.status(201).json(result);
-        } catch (e) {
-          const error = new ServerError(
-            'PASTA_CREATE_FAILED',
-            'Failed to create pasta'
-          );
-          return response.status(error.status).json(error);
+    return this.requireSessionWithEmail(request, response, (session) => {
+      return this.requireBody(
+        request,
+        response,
+        this.params.validator,
+        async (body) => {
+          try {
+            const result = await this.params.store.pastaStore.createPasta(
+              session.user.email,
+              body.name,
+              body.content
+            );
+            return response.status(201).json(result);
+          } catch (e) {
+            const error = new ServerError(
+              'PASTA_CREATE_FAILED',
+              'Failed to create pasta'
+            );
+            return response.status(error.status).json(error);
+          }
         }
-      })
-    );
+      );
+    });
   }
 }

@@ -15,6 +15,23 @@ export class Controller {
     'patch',
   ]);
 
+  protected requireQuery<T extends object>(
+    req: NextApiRequest,
+    res: NextApiResponse,
+    schema: ObjectSchema<T>,
+    queryHandler: (queryParsed: T) => void
+  ) {
+    const validationResult = schema.validate(req.query);
+    if (validationResult.error) {
+      const error = new InvalidRequestError(
+        'INCORRECT_QUERY',
+        'The path you provided does not match required schema'
+      );
+      return res.status(error.status).json(error);
+    }
+    return queryHandler(validationResult.value);
+  }
+
   protected requireBody<T extends object>(
     req: NextApiRequest,
     res: NextApiResponse,
@@ -27,7 +44,7 @@ export class Controller {
     } catch (e) {
       const error = new InvalidRequestError(
         'CORRUPTED_BODY',
-        'The body you provided does not match required scheme'
+        'The body you provided does not match required schema'
       );
       return res.status(error.status).json(error);
     }
@@ -36,7 +53,7 @@ export class Controller {
     if (validationResult.error) {
       const error = new InvalidRequestError(
         'INCORRECT_BODY',
-        'The body you provided does not match required scheme'
+        'The body you provided does not match required schema'
       );
       return res.status(error.status).json(error);
     }
