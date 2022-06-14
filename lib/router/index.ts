@@ -1,3 +1,3 @@
-export { Handler } from './handler';
-export { RestrictedHandler } from './restricted-handler';
-export { registerHandler } from './handler-registration';
+export { Controller } from './controller';
+export { RestrictedController } from './restricted-controller';
+export { Router } from './router';

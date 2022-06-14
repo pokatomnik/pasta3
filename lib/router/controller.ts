@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse, NextApiHandler } from 'next';
 import { NotFoundError, InvalidRequestError } from '../http-errors';
 import type { ObjectSchema } from 'joi';
 
-export abstract class Handler {
+export class Controller {
   private static HTTP_METHODS = new Set<string>([
     'get',
     'head',
@@ -14,6 +14,23 @@ export abstract class Handler {
     'trace',
     'patch',
   ]);
+
+  protected requireQuery<T extends object>(
+    req: NextApiRequest,
+    res: NextApiResponse,
+    schema: ObjectSchema<T>,
+    queryHandler: (queryParsed: T) => void
+  ) {
+    const validationResult = schema.validate(req.query);
+    if (validationResult.error) {
+      const error = new InvalidRequestError(
+        'INCORRECT_QUERY',
+        'The path you provided does not match required schema'
+      );
+      return res.status(error.status).json(error);
+    }
+    return queryHandler(validationResult.value);
+  }
 
   protected requireBody<T extends object>(
     req: NextApiRequest,
@@ -27,7 +44,7 @@ export abstract class Handler {
     } catch (e) {
       const error = new InvalidRequestError(
         'CORRUPTED_BODY',
-        'The body you provided does not match required scheme'
+        'The body you provided does not match required schema'
       );
       return res.status(error.status).json(error);
     }
@@ -36,7 +53,7 @@ export abstract class Handler {
     if (validationResult.error) {
       const error = new InvalidRequestError(
         'INCORRECT_BODY',
-        'The body you provided does not match required scheme'
+        'The body you provided does not match required schema'
       );
       return res.status(error.status).json(error);
     }
@@ -87,7 +104,7 @@ export abstract class Handler {
   public internalHandle(): NextApiHandler<unknown> {
     return (request, response) => {
       const httpMethod = request.method?.toLocaleLowerCase();
-      if (!httpMethod || !Handler.HTTP_METHODS.has(httpMethod)) {
+      if (!httpMethod || !Controller.HTTP_METHODS.has(httpMethod)) {
         return this.defaultNotFound(request, response);
       }
       switch (httpMethod) {

@@ -1,5 +1,5 @@
 import { NextApiHandler, NextApiRequest, NextApiResponse } from 'next';
-import { Handler } from './handler';
+import { Controller } from './controller';
 import { getSession } from 'next-auth/react';
 import { ISODateString } from 'next-auth';
 import { ServerError, UnauthorizedError } from '../http-errors';
@@ -13,7 +13,7 @@ interface CustomSession {
   expires: ISODateString;
 }
 
-export abstract class RestrictedHandler extends Handler {
+export abstract class RestrictedController extends Controller {
   protected async requireSessionWithEmail(
     req: NextApiRequest,
     res: NextApiResponse,

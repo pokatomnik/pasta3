@@ -1,7 +1,7 @@
 import type { NextApiResponse } from 'next';
-import { Handler, registerHandler } from '../../lib/router';
+import { Controller } from '../../lib/router';
 
-class HelloHandler extends Handler {
+export class HelloController extends Controller {
   public override get(_: unknown, response: NextApiResponse<{ foo: 1 }>) {
     response.json({ foo: 1 });
   }
@@ -10,5 +10,3 @@ class HelloHandler extends Handler {
     response.json({ foo: 2 });
   }
 }
-
-export default registerHandler(HelloHandler);

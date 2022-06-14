@@ -1,7 +1,8 @@
-import "../styles/globals.css";
-import { SessionProvider } from "next-auth/react";
-import type { Session } from "next-auth";
-import { Box } from "@mui/material";
+import * as React from 'react';
+import '../styles/globals.css';
+import { SessionProvider } from 'next-auth/react';
+import type { Session } from 'next-auth';
+import { Box } from '@mui/material';
 
 function MyApp(props: {
   Component: React.ComponentType<object>;

@@ -1,21 +1,21 @@
 export interface Pasta {
-  id: string;
+  readonly _id: string;
   /**
    * User email
    */
-  email: string;
+  readonly email: string;
   /**
    * Pasta name
    */
-  name: string;
+  readonly name: string;
   /**
    * Pasta content
    */
-  content: string;
+  readonly content: string;
   /**
    * Date created, timestamp
    */
-  dateCreated: number;
+  readonly dateCreated: number;
 }
 
 export type PastaCreateModel = Omit<Pasta, 'id'>;

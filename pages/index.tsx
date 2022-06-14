@@ -1,7 +1,7 @@
 import React from 'react';
-import { ApplicationTopBar } from '../lib/components/application-top-bar';
+import { ApplicationTopBar } from '../application/ui/application-top-bar';
 import { Grid, Box, Stack } from '@mui/material';
-import { NewPasta } from '../lib/components/new-pasta';
+import { NewPasta } from '../application/ui/new-pasta';
 
 export default function Home() {
   return (
