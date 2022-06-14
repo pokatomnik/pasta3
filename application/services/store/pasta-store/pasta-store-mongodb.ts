@@ -32,6 +32,9 @@ export class PastaStore implements IPastaStore {
     from: number,
     limit: number
   ): Promise<Array<Pasta>> {
+    if (limit === 0) {
+      return [];
+    }
     return await MongoDBConnection.requireConnected(async () => {
       return await PastaModel.find({ email })
         .sort({ dateCreated: 1 })

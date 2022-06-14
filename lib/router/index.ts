@@ -1,3 +1,6 @@
 export { Controller } from './controller';
-export { RestrictedController } from './restricted-controller';
+export {
+  RestrictedController,
+  type CustomSession,
+} from './restricted-controller';
 export { Router } from './router';
