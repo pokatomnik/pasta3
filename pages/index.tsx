@@ -2,8 +2,10 @@ import React from 'react';
 import { ApplicationTopBar } from '../application/ui/application-top-bar';
 import { Grid, Box, Stack } from '@mui/material';
 import { NewPasta } from '../application/ui/new-pasta';
+import { ExistingPastaList } from '../application/ui/existing-pasta';
+import { PastaStore } from '../application/stores/pasta';
 
-export default function Home() {
+export default PastaStore.modelProvider(() => {
   return (
     <React.Fragment>
       <ApplicationTopBar />
@@ -13,6 +15,7 @@ export default function Home() {
           <Grid item xs={12} md={6}>
             <Stack spacing={2}>
               <NewPasta />
+              <ExistingPastaList />
             </Stack>
           </Grid>
           <Grid item xs={0} md={3} />
@@ -20,4 +23,4 @@ export default function Home() {
       </Box>
     </React.Fragment>
   );
-}
+});
