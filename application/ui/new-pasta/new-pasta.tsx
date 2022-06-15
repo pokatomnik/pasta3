@@ -10,10 +10,9 @@ import {
   Menu,
   MenuItem,
 } from '@mui/material';
-import { useSession } from 'next-auth/react';
+import { PastaStore } from '../../stores/pasta';
 
-export function NewPasta() {
-  const session = useSession();
+export const NewPasta = PastaStore.modelClient((props) => {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
 
@@ -29,7 +28,12 @@ export function NewPasta() {
 
   const downloadAsFile = () => {};
 
-  const save = () => {};
+  const save = () => {
+    if (props.pastaStore.newPasta.canBeSaved) {
+      props.pastaStore.newPasta.save();
+    }
+    closeMenu();
+  };
 
   return (
     <Card variant="elevation">
@@ -41,6 +45,10 @@ export function NewPasta() {
                 fullWidth
                 variant="standard"
                 placeholder="A new Pasta name"
+                value={props.pastaStore.newPasta.name}
+                onChange={(evt) => {
+                  props.pastaStore.newPasta.setName(evt.currentTarget.value);
+                }}
               />
               <IconButton
                 aria-label="Menu"
@@ -57,7 +65,10 @@ export function NewPasta() {
                 onClose={closeMenu}
               >
                 <MenuItem onClick={downloadAsFile}>Download</MenuItem>
-                <MenuItem onClick={save} disabled={!session}>
+                <MenuItem
+                  onClick={save}
+                  disabled={!props.pastaStore.canBeSaved}
+                >
                   Save
                 </MenuItem>
               </Menu>
@@ -72,8 +83,12 @@ export function NewPasta() {
           variant="outlined"
           placeholder="A new Pasta content"
           minRows={10}
+          value={props.pastaStore.newPasta.content}
+          onChange={(evt) => {
+            props.pastaStore.newPasta.setContent(evt.currentTarget.value);
+          }}
         />
       </CardContent>
     </Card>
   );
-}
+});

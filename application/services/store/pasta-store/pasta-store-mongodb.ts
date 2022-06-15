@@ -1,9 +1,12 @@
+import noop from 'lodash/noop';
 import { Pasta } from '../../../../domain/pasta';
 import type { IPastaStore } from '../../../../lib/store';
 import { PastaModel } from './models/pasta';
 import { MongoDBConnection } from './connection-singleton';
 
 export class PastaStore implements IPastaStore {
+  public readonly identifierLength = 24;
+
   public async createPasta(
     email: string,
     name: string,
@@ -29,6 +32,9 @@ export class PastaStore implements IPastaStore {
     from: number,
     limit: number
   ): Promise<Array<Pasta>> {
+    if (limit === 0) {
+      return [];
+    }
     return await MongoDBConnection.requireConnected(async () => {
       return await PastaModel.find({ email })
         .sort({ dateCreated: 1 })
@@ -38,8 +44,14 @@ export class PastaStore implements IPastaStore {
     });
   }
 
-  public deletePasta(email: string, id: string): Promise<void> {
-    console.log(email, id);
-    throw new Error('Method not implemented.');
+  public async deletePasta(email: string, id: string): Promise<void> {
+    return await MongoDBConnection.requireConnected(async () => {
+      return PastaModel.deleteOne({
+        email,
+        _id: id,
+      })
+        .exec()
+        .then(noop);
+    });
   }
 }

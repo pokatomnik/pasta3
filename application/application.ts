@@ -1,34 +1,34 @@
 import Joi from 'joi';
 import { Router, Controller } from '../lib/router';
 import { HelloController } from './controllers/hello-controller';
-import { GetPastaByIdController } from './controllers/get-pasta-by-id-controller';
-import { PastaCreateController } from './controllers/pasta-create-controller';
-import { GetPastasController } from './controllers/get-pastas';
+import { PastaController } from './controllers/pasta-controller';
 import type { IStore } from '../lib/store';
 import { Store } from './services/store';
+import { UrlSchema } from './services/url-schema';
 
 export class Application {
   private readonly store: IStore = new Store();
 
+  private readonly urlSchema = new UrlSchema({ version: 1 });
+
   private readonly controllers = {
     notFound: new Controller(),
     hello: new HelloController(),
-    pastaCrete: new PastaCreateController({
+    pasta: new PastaController({
       store: this.store,
-      validator: Joi.object({
+      createValidator: Joi.object({
         name: Joi.string().required().min(1),
         content: Joi.string().required().min(1),
       }).strict(),
-    }),
-    pastaById: new GetPastaByIdController({
-      store: this.store,
-      validator: Joi.object({
-        id: Joi.string().required().length(24),
-      }),
-    }),
-    pastasGet: new GetPastasController({
-      store: this.store,
-      validator: Joi.object({
+      deleteValidator: Joi.object({
+        id: Joi.string()
+          .required()
+          .length(this.store.pastaStore.identifierLength),
+      }).required(),
+      getValidator: Joi.object({
+        id: Joi.string()
+          .length(this.store.pastaStore.identifierLength)
+          .optional(),
         from: Joi.number().min(0).max(Number.MAX_SAFE_INTEGER).optional(),
         limit: Joi.number().min(0).max(Number.MAX_SAFE_INTEGER).optional(),
       }).required(),
@@ -38,12 +38,14 @@ export class Application {
   private readonly router = new Router({
     notFoundHandler: this.controllers.notFound,
   })
-    .addHandler('/v1/hello', this.controllers.hello)
-    .addHandler('/v1/pastas/create', this.controllers.pastaCrete)
-    .addHandler('/v1/pastas/id/{id}', this.controllers.pastaById)
-    .addHandler('/v1/pastas/all', this.controllers.pastasGet)
-    .addHandler('/v1/pastas/all/{from}', this.controllers.pastasGet)
-    .addHandler('/v1/pastas/all/{from}/{limit}', this.controllers.pastasGet);
+    .addHandler(this.urlSchema.hello().pattern, this.controllers.hello)
+    .addHandler(this.urlSchema.pasta().pattern, this.controllers.pasta)
+    .addHandler(this.urlSchema.pastaById().pattern, this.controllers.pasta)
+    .addHandler(this.urlSchema.pastaFrom().pattern, this.controllers.pasta)
+    .addHandler(
+      this.urlSchema.pastaFromLimit().pattern,
+      this.controllers.pasta
+    );
 
   public getDefaultNotFoundHandler() {
     return this.router.notFoundHandler();

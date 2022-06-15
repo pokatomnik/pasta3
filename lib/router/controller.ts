@@ -40,7 +40,8 @@ export class Controller {
   ) {
     let bodyParsed: T;
     try {
-      bodyParsed = JSON.parse(req.body);
+      bodyParsed =
+        typeof req.body === 'object' ? req.body : JSON.parse(req.body);
     } catch (e) {
       const error = new InvalidRequestError(
         'CORRUPTED_BODY',

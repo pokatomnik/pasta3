@@ -4,7 +4,7 @@ import { getSession } from 'next-auth/react';
 import { ISODateString } from 'next-auth';
 import { ServerError, UnauthorizedError } from '../http-errors';
 
-interface CustomSession {
+export interface CustomSession {
   user: {
     name?: string | null;
     email: string;
