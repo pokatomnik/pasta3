@@ -11,11 +11,11 @@ export class PastaClient {
     }
   ) {}
 
-  public async createPasta(name: string, content: string) {
+  public async createPasta(name: string, content: string, encrypted: boolean) {
     const url = this.params.pathResolver.resolve(
       this.params.urlSchema.pasta().resolve()
     );
-    const response = await Axios.post<Pasta>(url, { name, content });
+    const response = await Axios.post<Pasta>(url, { name, content, encrypted });
     return response.data;
   }
 

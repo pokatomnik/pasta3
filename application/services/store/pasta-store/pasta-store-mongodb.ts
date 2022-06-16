@@ -10,11 +10,18 @@ export class PastaStore implements IPastaStore {
   public async createPasta(
     email: string,
     name: string,
-    content: string
+    content: string,
+    encrypted: boolean
   ): Promise<Pasta> {
     return await MongoDBConnection.requireConnected(async () => {
       const dateCreated = Date.now();
-      const pasta = new PastaModel({ email, name, content, dateCreated });
+      const pasta = new PastaModel({
+        email,
+        name,
+        content,
+        dateCreated,
+        encrypted,
+      });
       const saveResult = await pasta.save();
       return saveResult?.toObject() ?? null;
     });

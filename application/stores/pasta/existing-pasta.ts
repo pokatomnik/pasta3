@@ -35,6 +35,10 @@ export class ExistingPasta implements Pasta {
     return this.source.dateCreated;
   }
 
+  public get encrypted() {
+    return Boolean(this.source.encrypted);
+  }
+
   public async tryRemove() {
     if (!this.params.removable) {
       return;

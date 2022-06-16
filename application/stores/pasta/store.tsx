@@ -52,6 +52,7 @@ export class Store {
   public resetNewPasta() {
     this._newPasta.setContent('');
     this._newPasta.setName('');
+    this._newPasta.setEncrypted(false);
   }
 
   public get canBeSaved() {

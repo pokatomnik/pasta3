@@ -18,6 +18,7 @@ export class PastaController extends RestrictedController {
       createValidator: Joi.ObjectSchema<{
         name: string;
         content: string;
+        encrypted: boolean;
       }>;
     }
   ) {
@@ -38,7 +39,8 @@ export class PastaController extends RestrictedController {
             const result = await this.params.store.pastaStore.createPasta(
               session.user.email,
               body.name,
-              body.content
+              body.content,
+              body.encrypted
             );
             return response.status(201).json(result);
           } catch (e) {

@@ -1,28 +1,21 @@
 import * as React from 'react';
-import { Select, FormControl, MenuItem, InputLabel } from '@mui/material';
-import { Encrypion } from '../../stores/encryption';
-import { SymmetricEncryption } from '../../../lib/encryption';
-import { NoEncrypion } from './no-encrypion';
-import { PastaEncryption } from './pasta-encryption';
+import { Select, FormControl, MenuItem } from '@mui/material';
+import { Encrypion, PastaEncryption } from '../../stores/encryption';
+import { AES } from '../../../lib/encryption';
 
 export function EncryptionSelector(props: {
   requirePasss: () => Promise<string>;
-  onAlgorithmChange: (algorithm: SymmetricEncryption) => void;
+  onAlgorithmChange: (algorithm: PastaEncryption) => void;
 }) {
   const algorithms = Encrypion.use();
 
   const menuItemValues = React.useMemo<Array<PastaEncryption>>(() => {
-    const pastaNoEncryption = new PastaEncryption({
-      symmetricEncrypion: EncryptionSelector.defaultAlgorithm,
-      requirePass: () => Promise.resolve(''),
-    });
-    const pastaWithEncryption = algorithms.symmetricAlgorithms.map((alg) => {
+    return algorithms.symmetricAlgorithms.map((alg) => {
       return new PastaEncryption({
         symmetricEncrypion: alg,
         requirePass: props.requirePasss,
       });
     });
-    return [pastaNoEncryption].concat(pastaWithEncryption);
   }, [algorithms.symmetricAlgorithms, props.requirePasss]);
 
   const names = React.useMemo(() => {
@@ -39,8 +32,15 @@ export function EncryptionSelector(props: {
     return firstAlgorithmName;
   });
 
+  React.useEffect(() => {
+    const algorithmNameIndex = names.indexOf(selectedName);
+    const algorithm =
+      menuItemValues[algorithmNameIndex] ?? EncryptionSelector.defaultAlgorithm;
+    props.onAlgorithmChange(algorithm);
+  }, [props.onAlgorithmChange, selectedName, menuItemValues, names]);
+
   return (
-    <FormControl variant="standard" sx={{ minWidth: 120 }}>
+    <FormControl variant="standard" sx={{ minWidth: 80 }}>
       <Select
         value={selectedName}
         onChange={(event) => {
@@ -60,4 +60,7 @@ export function EncryptionSelector(props: {
   );
 }
 
-EncryptionSelector.defaultAlgorithm = new NoEncrypion();
+EncryptionSelector.defaultAlgorithm = new PastaEncryption({
+  symmetricEncrypion: new AES(),
+  requirePass: () => Promise.resolve(''),
+});

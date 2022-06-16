@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Observer } from 'mobx-react';
 import { MoreVert } from '@mui/icons-material';
 import {
   Card,
@@ -47,49 +48,55 @@ export const ExistingPastaList = PastaStore.modelClient((props) => {
     <React.Fragment>
       {props.pastaStore.existingPastaList.map((existingPasta) => {
         return (
-          <Card variant="elevation" key={existingPasta._id}>
-            <CardHeader
-              title={
-                <React.Fragment>
-                  <Stack direction="row">
-                    <Typography
-                      variant="h5"
-                      component="div"
-                      sx={{ flexGrow: 1 }}
-                    >
-                      {existingPasta.name}
-                    </Typography>
-                    <EncryptionSelector
-                      onAlgorithmChange={() => {}}
-                      requirePasss={() => Promise.resolve('')}
-                    />
-                    <IconButton
-                      aria-label="Menu"
-                      onClick={(evt) => {
-                        setMenuState({
-                          open: true,
-                          el: evt.currentTarget,
-                          pasta: existingPasta,
-                        });
-                      }}
-                    >
-                      <MoreVert />
-                    </IconButton>
-                  </Stack>
-                </React.Fragment>
-              }
-            />
-            <CardContent>
-              <TextField
-                multiline
-                fullWidth
-                variant="outlined"
-                minRows={10}
-                disabled
-                value={existingPasta.content}
-              />
-            </CardContent>
-          </Card>
+          <Observer key={existingPasta._id}>
+            {() => (
+              <Card variant="elevation" key={existingPasta._id}>
+                <CardHeader
+                  title={
+                    <React.Fragment>
+                      <Stack direction="row">
+                        <Typography
+                          variant="h5"
+                          component="div"
+                          sx={{ flexGrow: 1 }}
+                        >
+                          {existingPasta.name}
+                        </Typography>
+                        {existingPasta.encrypted && (
+                          <EncryptionSelector
+                            onAlgorithmChange={() => {}}
+                            requirePasss={() => Promise.resolve('')}
+                          />
+                        )}
+                        <IconButton
+                          aria-label="Menu"
+                          onClick={(evt) => {
+                            setMenuState({
+                              open: true,
+                              el: evt.currentTarget,
+                              pasta: existingPasta,
+                            });
+                          }}
+                        >
+                          <MoreVert />
+                        </IconButton>
+                      </Stack>
+                    </React.Fragment>
+                  }
+                />
+                <CardContent>
+                  <TextField
+                    multiline
+                    fullWidth
+                    variant="outlined"
+                    minRows={10}
+                    disabled
+                    value={existingPasta.content}
+                  />
+                </CardContent>
+              </Card>
+            )}
+          </Observer>
         );
       })}
       <Menu

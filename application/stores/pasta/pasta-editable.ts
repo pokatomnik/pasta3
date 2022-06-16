@@ -1,13 +1,24 @@
 import { makeAutoObservable } from 'mobx';
 import type { Pasta } from '../../../domain/pasta';
+import { Cloneable } from '../../../lib/cloneable';
+import { PastaEncryption } from '../encryption';
 
 export class PastaEditable
-  implements Omit<Pasta, '_id' | 'email' | 'dateCreated'>
+  implements
+    Omit<Pasta, '_id' | 'email' | 'dateCreated'>,
+    Cloneable<PastaEditable>
 {
   public constructor(
     private readonly params: { onSave: (pasta: PastaEditable) => void }
   ) {
     makeAutoObservable(this, {}, { autoBind: true });
+  }
+
+  public clone(
+    modifier: (clone: PastaEditable) => PastaEditable
+  ): PastaEditable {
+    const pasta = new PastaEditable(this.params);
+    return modifier(pasta);
   }
 
   private _name = '';
@@ -26,8 +37,31 @@ export class PastaEditable
     this._content = newContent;
   }
 
-  public save() {
-    this.params.onSave(this);
+  private _encrypted = false;
+  public get encrypted() {
+    return this._encrypted;
+  }
+  public setEncrypted(encrypted: boolean) {
+    this._encrypted = encrypted;
+  }
+
+  public save(encryption: PastaEncryption) {
+    encryption
+      .encrypt(this._content)
+      .then((encryptedContent) => {
+        this.params.onSave(
+          this.clone((pasta) => {
+            pasta._name = this._name;
+            pasta._content = encryptedContent;
+            pasta._encrypted = this._encrypted;
+            return pasta;
+          })
+        );
+      })
+      .catch((e) => {
+        console.error('Failed to encrypt');
+        console.error(e);
+      });
   }
 
   public get canBeSaved() {
