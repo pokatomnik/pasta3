@@ -1,31 +1,22 @@
 import * as React from 'react';
-import { Observer } from 'mobx-react';
-import { MoreVert } from '@mui/icons-material';
-import {
-  Card,
-  Stack,
-  CardHeader,
-  TextField,
-  IconButton,
-  CardContent,
-  Menu,
-  MenuItem,
-  Typography,
-} from '@mui/material';
+import { Menu, MenuItem } from '@mui/material';
 import { PastaStore } from '../../stores/pasta';
 import { ExistingPasta } from '../../stores/pasta/existing-pasta';
-import { EncryptionSelector } from '../encryption-selector';
+import { ExistingPastaItem } from './existing-pasta-item';
+import { PastaEncryption } from '../../stores/encryption';
 
 interface IMenuClosed {
   open: false;
   el: null;
   pasta: null;
+  algorithm: null;
 }
 
 interface IMenuOpen {
   open: true;
   el: HTMLElement;
   pasta: ExistingPasta;
+  algorithm: PastaEncryption;
 }
 
 export const ExistingPastaList = PastaStore.modelClient((props) => {
@@ -33,6 +24,7 @@ export const ExistingPastaList = PastaStore.modelClient((props) => {
     open: false,
     el: null,
     pasta: null,
+    algorithm: null,
   });
 
   const tryRemovePasta = () => {
@@ -41,6 +33,17 @@ export const ExistingPastaList = PastaStore.modelClient((props) => {
       open: false,
       el: null,
       pasta: null,
+      algorithm: null,
+    });
+  };
+
+  const decrypt = () => {
+    menuState.pasta?.decryptForMS(menuState.algorithm, 30 * 1000);
+    setMenuState({
+      open: false,
+      el: null,
+      pasta: null,
+      algorithm: null,
     });
   };
 
@@ -48,55 +51,18 @@ export const ExistingPastaList = PastaStore.modelClient((props) => {
     <React.Fragment>
       {props.pastaStore.existingPastaList.map((existingPasta) => {
         return (
-          <Observer key={existingPasta._id}>
-            {() => (
-              <Card variant="elevation" key={existingPasta._id}>
-                <CardHeader
-                  title={
-                    <React.Fragment>
-                      <Stack direction="row">
-                        <Typography
-                          variant="h5"
-                          component="div"
-                          sx={{ flexGrow: 1 }}
-                        >
-                          {existingPasta.name}
-                        </Typography>
-                        {existingPasta.encrypted && (
-                          <EncryptionSelector
-                            onAlgorithmChange={() => {}}
-                            requirePasss={() => Promise.resolve('')}
-                          />
-                        )}
-                        <IconButton
-                          aria-label="Menu"
-                          onClick={(evt) => {
-                            setMenuState({
-                              open: true,
-                              el: evt.currentTarget,
-                              pasta: existingPasta,
-                            });
-                          }}
-                        >
-                          <MoreVert />
-                        </IconButton>
-                      </Stack>
-                    </React.Fragment>
-                  }
-                />
-                <CardContent>
-                  <TextField
-                    multiline
-                    fullWidth
-                    variant="outlined"
-                    minRows={10}
-                    disabled
-                    value={existingPasta.content}
-                  />
-                </CardContent>
-              </Card>
-            )}
-          </Observer>
+          <ExistingPastaItem
+            key={existingPasta._id}
+            item={existingPasta}
+            onMenuOpen={(el, algorithm) => {
+              setMenuState({
+                open: true,
+                el,
+                pasta: existingPasta,
+                algorithm,
+              });
+            }}
+          />
         );
       })}
       <Menu
@@ -108,11 +74,17 @@ export const ExistingPastaList = PastaStore.modelClient((props) => {
             open: false,
             el: null,
             pasta: null,
+            algorithm: null,
           });
         }}
       >
         <MenuItem onClick={() => {}}>Download</MenuItem>
         <MenuItem onClick={tryRemovePasta}>Delete</MenuItem>
+        {menuState.pasta?.encrypted && (
+          <MenuItem disabled={menuState.pasta?.isDecrypted} onClick={decrypt}>
+            Decrypt
+          </MenuItem>
+        )}
       </Menu>
     </React.Fragment>
   );
