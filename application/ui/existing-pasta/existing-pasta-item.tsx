@@ -14,7 +14,7 @@ import { observer } from 'mobx-react';
 import { ExistingPasta } from '../../stores/pasta/existing-pasta';
 import { EncryptionSelector } from '../encryption-selector';
 import { PastaEncryption } from '../../stores/encryption';
-import { PassPrompt } from '../new-pasta/pass-prompt';
+import { PassPrompt } from '../pass-prompt';
 import { useModal } from '../modal';
 
 export const ExistingPastaItem = observer(

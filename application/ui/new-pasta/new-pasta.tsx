@@ -18,7 +18,7 @@ import {
 import { PastaStore } from '../../stores/pasta';
 import { EncryptionSelector } from '../encryption-selector';
 import { useModal } from '../modal';
-import { PassPrompt } from './pass-prompt';
+import { PassPrompt } from '../pass-prompt';
 import { PastaEncryption, NoEncryption } from '../../stores/encryption';
 
 export const NewPasta = PastaStore.modelClient((props) => {
