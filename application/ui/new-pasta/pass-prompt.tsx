@@ -26,34 +26,37 @@ export function PassPrompt(props: {
     <Box sx={style}>
       <Paper sx={{ padding: '40px' }}>
         <Stack direction="column" gap={2}>
-          <Input
-            inputRef={ref}
-            placeholder="Passphrase"
-            type="password"
-            value={pass}
-            onChange={(evt) => {
-              setPass(evt.currentTarget.value);
+          <form
+            style={{ display: 'contents' }}
+            onSubmit={(evt) => {
+              evt.preventDefault();
+              evt.stopPropagation();
+              props.resolve(pass);
             }}
-          />
-          <Stack gap={2} direction="row" justifyContent="end">
-            <Button
-              disabled={pass.length < 6}
-              type="button"
-              onClick={() => {
-                props.resolve(pass);
+          >
+            <Input
+              inputRef={ref}
+              placeholder="Passphrase"
+              type="password"
+              value={pass}
+              onChange={(evt) => {
+                setPass(evt.currentTarget.value);
               }}
-            >
-              OK
-            </Button>
-            <Button
-              type="button"
-              onClick={() => {
-                props.reject(null);
-              }}
-            >
-              Cancel
-            </Button>
-          </Stack>
+            />
+            <Stack gap={2} direction="row" justifyContent="end">
+              <Button disabled={pass.length < 6} type="submit">
+                OK
+              </Button>
+              <Button
+                type="button"
+                onClick={() => {
+                  props.reject(null);
+                }}
+              >
+                Cancel
+              </Button>
+            </Stack>
+          </form>
         </Stack>
       </Paper>
     </Box>
