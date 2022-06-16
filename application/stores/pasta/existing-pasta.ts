@@ -69,28 +69,25 @@ export class ExistingPasta implements Pasta {
 
   public decryptForMS(
     encryption: PastaEncryption,
-    displayDecryptedDataFor: number
+    displayDecryptedDataFor: number,
+    onError: (e: unknown) => void = () => {}
   ) {
     encryption
       .decrypt(this.source.content)
-      .then((decryptedContent) =>
+      .then((decryptedContent) => {
         runInAction(() => {
           this._decryptedContent = decryptedContent;
           this._countdownTimer = new CountdownTimer({
             time: displayDecryptedDataFor,
             callbackEvery: displayDecryptedDataFor / 100,
           }).start();
-          setTimeout(
-            () =>
-              runInAction(() => {
-                this._decryptedContent = null;
-              }),
-            displayDecryptedDataFor
-          );
-        })
-      )
-      .catch(() => {
-        console.log('Decryption cancelled');
-      });
+          setTimeout(() => {
+            runInAction(() => {
+              this._decryptedContent = null;
+            });
+          }, displayDecryptedDataFor);
+        });
+      })
+      .catch(onError);
   }
 }

@@ -13,6 +13,7 @@ const style = {
 export function PassPrompt(props: {
   resolve: (pass: string) => void;
   reject: (e: unknown) => void;
+  cancel: () => void;
 }) {
   const [pass, setPass] = React.useState('');
 
@@ -50,7 +51,7 @@ export function PassPrompt(props: {
               <Button
                 type="button"
                 onClick={() => {
-                  props.reject(null);
+                  props.cancel();
                 }}
               >
                 Cancel

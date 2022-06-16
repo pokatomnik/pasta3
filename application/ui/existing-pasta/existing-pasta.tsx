@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Menu, MenuItem } from '@mui/material';
+import { Menu, MenuItem, Snackbar } from '@mui/material';
 import { PastaStore } from '../../stores/pasta';
 import { ExistingPasta } from '../../stores/pasta/existing-pasta';
 import { ExistingPastaItem } from './existing-pasta-item';
@@ -20,6 +20,7 @@ interface IMenuOpen {
 }
 
 export const ExistingPastaList = PastaStore.modelClient((props) => {
+  const [snackbarShow, setSnackbarShow] = React.useState(false);
   const [menuState, setMenuState] = React.useState<IMenuOpen | IMenuClosed>({
     open: false,
     el: null,
@@ -38,7 +39,9 @@ export const ExistingPastaList = PastaStore.modelClient((props) => {
   };
 
   const decrypt = () => {
-    menuState.pasta?.decryptForMS(menuState.algorithm, 30 * 1000);
+    menuState.pasta?.decryptForMS(menuState.algorithm, 30 * 1000, () => {
+      setSnackbarShow(true);
+    });
     setMenuState({
       open: false,
       el: null,
@@ -86,6 +89,14 @@ export const ExistingPastaList = PastaStore.modelClient((props) => {
           </MenuItem>
         )}
       </Menu>
+      <Snackbar
+        open={snackbarShow}
+        onClose={() => {
+          setSnackbarShow(false);
+        }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        message="Failed to decrypt"
+      />
     </React.Fragment>
   );
 });

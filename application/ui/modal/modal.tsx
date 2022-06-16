@@ -10,6 +10,7 @@ export function useModal<R>(
   const openDialog = React.useCallback(
     (
       Component: React.ComponentType<{
+        cancel: () => void;
         resolve: (result: R) => void;
         reject: (e: unknown) => void;
       }>
@@ -17,6 +18,9 @@ export function useModal<R>(
       return new Promise((resolve, reject) => {
         setBodyJSX(
           <Component
+            cancel={() => {
+              setOpen(false);
+            }}
             resolve={(result) => {
               resolve(result);
               setOpen(false);

@@ -19,7 +19,13 @@ export class PastaEncryption {
 
   public async decrypt(data: string): Promise<string> {
     const pass = await this.params.requirePass();
-    return this.params.symmetricEncrypion.decrypt(data, pass);
+    const result = await this.params.symmetricEncrypion.decrypt(data, pass);
+
+    if (!result) {
+      throw new Error('Failed to decrypt');
+    }
+
+    return result;
   }
 
   public get symmetricEncrypion() {
