@@ -59,8 +59,3 @@ export function EncryptionSelector(props: {
     </FormControl>
   );
 }
-
-// EncryptionSelector.defaultAlgorithm = new PastaEncryption({
-//   symmetricEncrypion: new AES(),
-//   requirePass: () => Promise.resolve(''),
-// });
