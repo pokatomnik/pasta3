@@ -30,7 +30,7 @@ export const ExistingPastaItem = observer(
       return openDialog(PassPrompt);
     };
 
-    const algorithmRef = React.useRef(EncryptionSelector.defaultAlgorithm);
+    const algorithmRef = React.useRef<PastaEncryption | null>(null);
 
     return (
       <React.Fragment>
@@ -53,7 +53,12 @@ export const ExistingPastaItem = observer(
                   <IconButton
                     aria-label="Menu"
                     onClick={(evt) => {
-                      props.onMenuOpen(evt.currentTarget, algorithmRef.current);
+                      if (algorithmRef.current) {
+                        props.onMenuOpen(
+                          evt.currentTarget,
+                          algorithmRef.current
+                        );
+                      }
                     }}
                   >
                     <MoreVert />

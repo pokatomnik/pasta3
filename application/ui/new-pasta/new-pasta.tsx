@@ -32,7 +32,7 @@ export const NewPasta = PastaStore.modelClient((props) => {
   }, [openDialog]);
 
   const [encryptionAlgorithm, setEncryptionAlgorithm] =
-    React.useState<PastaEncryption>(EncryptionSelector.defaultAlgorithm);
+    React.useState<PastaEncryption | null>(null);
 
   const openMenu = (htmlEl: HTMLElement) => {
     setMenuOpen(true);
@@ -54,7 +54,9 @@ export const NewPasta = PastaStore.modelClient((props) => {
             requirePass: () => Promise.resolve(''),
             symmetricEncrypion: new NoEncryption(),
           });
-      props.pastaStore.newPasta.save(algorithm);
+      if (algorithm) {
+        props.pastaStore.newPasta.save(algorithm);
+      }
     }
     closeMenu();
   };

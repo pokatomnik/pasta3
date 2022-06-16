@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Select, FormControl, MenuItem } from '@mui/material';
 import { Encrypion, PastaEncryption } from '../../stores/encryption';
-import { AES } from '../../../lib/encryption';
 
 export function EncryptionSelector(props: {
   requirePasss: () => Promise<string>;
@@ -34,9 +33,10 @@ export function EncryptionSelector(props: {
 
   React.useEffect(() => {
     const algorithmNameIndex = names.indexOf(selectedName);
-    const algorithm =
-      menuItemValues[algorithmNameIndex] ?? EncryptionSelector.defaultAlgorithm;
-    props.onAlgorithmChange(algorithm);
+    const algorithm = menuItemValues[algorithmNameIndex];
+    if (algorithm) {
+      props.onAlgorithmChange(algorithm);
+    }
   }, [props.onAlgorithmChange, selectedName, menuItemValues, names]);
 
   return (
@@ -60,7 +60,7 @@ export function EncryptionSelector(props: {
   );
 }
 
-EncryptionSelector.defaultAlgorithm = new PastaEncryption({
-  symmetricEncrypion: new AES(),
-  requirePass: () => Promise.resolve(''),
-});
+// EncryptionSelector.defaultAlgorithm = new PastaEncryption({
+//   symmetricEncrypion: new AES(),
+//   requirePass: () => Promise.resolve(''),
+// });
