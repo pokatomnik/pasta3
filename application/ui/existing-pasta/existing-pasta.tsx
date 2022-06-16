@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import { PastaStore } from '../../stores/pasta';
 import { ExistingPasta } from '../../stores/pasta/existing-pasta';
+import { EncryptionSelector } from '../encryption-selector';
 
 interface IMenuClosed {
   open: false;
@@ -58,6 +59,10 @@ export const ExistingPastaList = PastaStore.modelClient((props) => {
                     >
                       {existingPasta.name}
                     </Typography>
+                    <EncryptionSelector
+                      onAlgorithmChange={() => {}}
+                      requirePasss={() => Promise.resolve('')}
+                    />
                     <IconButton
                       aria-label="Menu"
                       onClick={(evt) => {

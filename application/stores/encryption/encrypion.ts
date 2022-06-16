@@ -1,13 +1,8 @@
 import * as React from 'react';
-import { SymmetricEncryption } from '../../../lib/encryption';
-import { AES } from '../../services/encryption/symmetric';
+import { type SymmetricEncryption, AES } from '../../../lib/encryption';
 
 export class Encrypion {
-  public readonly symmetric: Map<string, SymmetricEncryption> = new Map([
-    ['AES', new AES()],
-  ]);
-
-  public readonly symmetricAlgorithms = Array.from(this.symmetric.keys());
+  public readonly symmetricAlgorithms: Array<SymmetricEncryption> = [new AES()];
 
   private static readonly Context = React.createContext<Encrypion>(
     new Encrypion()

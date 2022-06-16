@@ -23,30 +23,22 @@ export class Store {
     this._existingPastas = new ExistingPastaList({
       httpClient: params.httpClient,
       session: params.session,
-      onNewSaveError: this.handleSaveError,
-      onReloadError: this.handleReloadError,
-      onSaveNewSuccess: this.handleSaveNewSuccess,
+      onNewSaveError: () => {
+        // TODO handle this
+      },
+      onReloadError: () => {
+        // TODO handle this
+      },
+      onSaveNewSuccess: () => {
+        this._newPasta.setName('');
+        this._newPasta.setContent('');
+      },
     });
     this._newPasta = new PastaEditable({
-      onSave: this.handleSaveNew,
+      onSave: (pasta: PastaEditable) => {
+        this._existingPastas.saveNew(pasta);
+      },
     });
-  }
-
-  private handleSaveNew(pasta: PastaEditable) {
-    this._existingPastas.saveNew(pasta);
-  }
-
-  private handleSaveError() {}
-
-  private handleReloadError() {}
-
-  private handleSaveNewSuccess() {
-    this._newPasta.setName('');
-    this._newPasta.setContent('');
-  }
-
-  private reloadExistingPasta() {
-    this._existingPastas.reload();
   }
 
   public get existingPastaList() {
@@ -76,7 +68,7 @@ export class Store {
     }, [session, httpClient]);
 
     React.useEffect(() => {
-      pastaStore.reloadExistingPasta();
+      pastaStore._existingPastas.reload();
     }, [pastaStore]);
 
     return (

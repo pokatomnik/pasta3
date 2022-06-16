@@ -9,8 +9,10 @@ import {
   CardContent,
   Menu,
   MenuItem,
+  FormControl,
 } from '@mui/material';
 import { PastaStore } from '../../stores/pasta';
+import { EncryptionSelector } from '../encryption-selector';
 
 export const NewPasta = PastaStore.modelClient((props) => {
   const [menuOpen, setMenuOpen] = React.useState(false);
@@ -41,14 +43,20 @@ export const NewPasta = PastaStore.modelClient((props) => {
         title={
           <React.Fragment>
             <Stack direction="row">
-              <TextField
-                fullWidth
-                variant="standard"
-                placeholder="A new Pasta name"
-                value={props.pastaStore.newPasta.name}
-                onChange={(evt) => {
-                  props.pastaStore.newPasta.setName(evt.currentTarget.value);
-                }}
+              <FormControl variant="standard" fullWidth>
+                <TextField
+                  variant="standard"
+                  fullWidth
+                  placeholder="A new Pasta name"
+                  value={props.pastaStore.newPasta.name}
+                  onChange={(evt) => {
+                    props.pastaStore.newPasta.setName(evt.currentTarget.value);
+                  }}
+                />
+              </FormControl>
+              <EncryptionSelector
+                onAlgorithmChange={() => {}}
+                requirePasss={() => Promise.resolve('')}
               />
               <IconButton
                 aria-label="Menu"
