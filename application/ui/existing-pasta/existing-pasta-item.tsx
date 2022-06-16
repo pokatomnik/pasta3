@@ -13,7 +13,7 @@ import { MoreVert } from '@mui/icons-material';
 import { observer } from 'mobx-react';
 import { ExistingPasta } from '../../stores/pasta/existing-pasta';
 import { EncryptionSelector } from '../encryption-selector';
-import { PastaEncryption } from '../../stores/encryption';
+import { PastaEncryption, NoEncryption } from '../../stores/encryption';
 import { PassPrompt } from '../pass-prompt';
 import { useModal } from '../modal';
 
@@ -53,12 +53,14 @@ export const ExistingPastaItem = observer(
                   <IconButton
                     aria-label="Menu"
                     onClick={(evt) => {
-                      if (algorithmRef.current) {
-                        props.onMenuOpen(
-                          evt.currentTarget,
-                          algorithmRef.current
-                        );
-                      }
+                      props.onMenuOpen(
+                        evt.currentTarget,
+                        algorithmRef.current ??
+                          new PastaEncryption({
+                            requirePass: () => Promise.resolve(''),
+                            symmetricEncrypion: new NoEncryption(),
+                          })
+                      );
                     }}
                   >
                     <MoreVert />
