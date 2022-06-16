@@ -58,9 +58,8 @@ export class PastaEditable
           })
         );
       })
-      .catch((e) => {
-        console.error('Failed to encrypt');
-        console.error(e);
+      .catch(() => {
+        console.error('Save cancelled');
       });
   }
 

@@ -48,7 +48,7 @@ export function useModal<R>(
         timeout: 500,
       }}
     >
-      {bodyJSX}
+      <div>{bodyJSX}</div>
     </Modal>
   );
 
