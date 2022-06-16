@@ -16,6 +16,10 @@ export interface Pasta {
    * Date created, timestamp
    */
   readonly dateCreated: number;
+  /**
+   * Is it encrypted
+   */
+  readonly encrypted?: boolean;
 }
 
 export type PastaCreateModel = Omit<Pasta, 'id'>;

@@ -7,6 +7,7 @@ const PastaSchema = new Schema({
   name: String,
   content: String,
   dateCreated: Number,
+  encrypted: Boolean,
 });
 
 export const PastaModel = models[MODEL_NAME] ?? model(MODEL_NAME, PastaSchema);

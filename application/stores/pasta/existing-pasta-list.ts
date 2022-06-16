@@ -60,7 +60,8 @@ export class ExistingPastaList {
     try {
       const realPasta = await this.params.httpClient.pastaClient.createPasta(
         pasta.name,
-        pasta.content
+        pasta.content,
+        pasta.encrypted
       );
       const realExistingPasta = new ExistingPasta(realPasta, {
         removable: true,

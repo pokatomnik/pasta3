@@ -19,6 +19,7 @@ export class Application {
       createValidator: Joi.object({
         name: Joi.string().required().min(1),
         content: Joi.string().required().min(1),
+        encrypted: Joi.boolean().required(),
       }).strict(),
       deleteValidator: Joi.object({
         id: Joi.string()
