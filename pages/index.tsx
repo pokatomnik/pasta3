@@ -11,14 +11,14 @@ export default PastaStore.modelProvider(() => {
       <ApplicationTopBar />
       <Box sx={{ flexFlow: 1, marginTop: '24px', marginBottom: '24px' }}>
         <Grid item container spacing={2} xs={12}>
-          <Grid item xs={0} md={3} />
-          <Grid item xs={12} md={6}>
+          <Grid item xs={1} md={3} />
+          <Grid item xs={10} md={6}>
             <Stack spacing={2}>
               <NewPasta />
               <ExistingPastaList />
             </Stack>
           </Grid>
-          <Grid item xs={0} md={3} />
+          <Grid item xs={1} md={3} />
         </Grid>
       </Box>
     </React.Fragment>
