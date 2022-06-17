@@ -66,7 +66,7 @@ export class Store {
     const httpClient = useHttpClient();
     const pastaStore = React.useMemo(() => {
       return new Store({ session, httpClient });
-    }, [session, httpClient]);
+    }, [session?.user?.email, httpClient]);
 
     React.useEffect(() => {
       pastaStore._existingPastas.reload();
