@@ -63,7 +63,7 @@ export const NewPasta = PastaStore.modelClient((props) => {
 
   return (
     <React.Fragment>
-      <Card variant="elevation">
+      <Card variant="elevation" sx={{ backgroundColor: '#dfefff' }}>
         <CardHeader
           title={
             <React.Fragment>

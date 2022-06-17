@@ -3,6 +3,7 @@ import type { Pasta } from '../../../domain/pasta';
 import type { HttpClient } from '../../http-client/http-client';
 import { PastaEncryption } from '../encryption';
 import { CountdownTimer } from './countdown-timer';
+import stringToColor from 'string-to-color';
 
 export class ExistingPasta implements Pasta {
   private _decryptedContent: string | null = null;
@@ -25,6 +26,10 @@ export class ExistingPasta implements Pasta {
     }
   ) {
     makeAutoObservable(this, {}, { autoBind: true });
+  }
+
+  public get color() {
+    return stringToColor(this.source.content);
   }
 
   public get _id() {
