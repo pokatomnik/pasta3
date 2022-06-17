@@ -3,7 +3,6 @@ import NextAuth from 'next-auth';
 import GithubProvider from 'next-auth/providers/github';
 import YandexProvider from 'next-auth/providers/yandex';
 import GoogleProvider from 'next-auth/providers/google';
-import VKProvider from 'next-auth/providers/vk';
 
 export default NextAuth({
   secret: env.NEXT_AUTH_SECRET,
@@ -19,10 +18,6 @@ export default NextAuth({
     GoogleProvider({
       clientId: env.GOOGLE_CLIENT_ID!,
       clientSecret: env.GOOGLE_CLIENT_SECRET!,
-    }),
-    VKProvider({
-      clientId: env.VK_CLIENT_ID,
-      clientSecret: env.VK_CLIENT_SECRET,
     }),
   ],
 });
