@@ -140,7 +140,7 @@ export const NewPasta = PastaStore.modelClient((props) => {
           <TextField
             multiline
             fullWidth
-            variant="outlined"
+            variant="filled"
             placeholder="A new Pasta content"
             minRows={10}
             value={props.pastaStore.newPasta.content}

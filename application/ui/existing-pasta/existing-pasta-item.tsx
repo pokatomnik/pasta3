@@ -95,7 +95,7 @@ export const ExistingPastaItem = observer(
               }}
               multiline
               fullWidth
-              variant="outlined"
+              variant="filled"
               minRows={10}
               value={props.item.content}
             />
