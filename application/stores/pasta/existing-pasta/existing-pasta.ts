@@ -1,10 +1,10 @@
 import { makeAutoObservable, runInAction } from 'mobx';
-import type { Pasta } from '../../../domain/pasta';
-import type { HttpClient } from '../../http-client/http-client';
-import { PastaEncryption } from '../encryption';
-import { CountdownTimer } from './countdown-timer';
+import type { Pasta } from '../../../../domain/pasta';
+import type { HttpClient } from '../../../http-client/http-client';
+import { PastaEncryption } from '../../encryption';
+import { CountdownTimer } from '../../../services/countdown-timer';
 import stringToColor from 'string-to-color';
-import { Cleanup, Export } from '../../services/export';
+import { Cleanup, Export } from '../../../services/export';
 
 export class ExistingPasta implements Pasta {
   private readonly export = new Export();
