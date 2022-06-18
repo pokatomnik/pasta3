@@ -9,9 +9,7 @@ export class ExistingPastaList {
   private readonly map: Map<string, ExistingPasta> = observable.map();
 
   public get list() {
-    return Array.from(this.map.values()).sort((a, b) => {
-      return b.dateCreated - a.dateCreated;
-    });
+    return Array.from(this.map.values());
   }
 
   public constructor(

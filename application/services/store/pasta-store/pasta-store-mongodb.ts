@@ -44,7 +44,7 @@ export class PastaStore implements IPastaStore {
     }
     return await MongoDBConnection.requireConnected(async () => {
       return await PastaModel.find({ email })
-        .sort({ dateCreated: 1 })
+        .sort({ dateCreated: -1 })
         .skip(from)
         .limit(limit)
         .exec();
