@@ -7,8 +7,11 @@ import { ExistingPastaList } from './existing-pasta-list';
 import { PastaEditable } from './pasta-editable';
 import { useSession } from 'next-auth/react';
 import { useHttpClient } from '../../http-client/consumer';
+import { Cleanup } from '../../services/export';
 
 export class Store {
+  private readonly clenupFns = new Set<Cleanup>();
+
   private readonly _newPasta: PastaEditable;
 
   private readonly _existingPastas: ExistingPastaList;
@@ -23,6 +26,9 @@ export class Store {
     this._existingPastas = new ExistingPastaList({
       httpClient: params.httpClient,
       session: params.session,
+      addCleanup: (cleanup) => {
+        this.clenupFns.add(cleanup);
+      },
       onNewSaveError: () => {
         // TODO handle this
       },
@@ -37,6 +43,9 @@ export class Store {
     this._newPasta = new PastaEditable({
       onSave: (pasta: PastaEditable) => {
         this._existingPastas.saveNew(pasta);
+      },
+      addCleanup: (cleanup) => {
+        this.clenupFns.add(cleanup);
       },
     });
   }
@@ -55,6 +64,10 @@ export class Store {
     this._newPasta.setEncrypted(false);
   }
 
+  public get canBeDownloaded() {
+    return this._newPasta.canBeSaved;
+  }
+
   public get canBeSaved() {
     return Boolean(this.params.session) && this._newPasta.canBeSaved;
   }
@@ -66,10 +79,15 @@ export class Store {
     const httpClient = useHttpClient();
     const pastaStore = React.useMemo(() => {
       return new Store({ session, httpClient });
-    }, [session, httpClient]);
+    }, [session?.user?.email, httpClient]);
 
     React.useEffect(() => {
       pastaStore._existingPastas.reload();
+      return () => {
+        for (const cleanup of pastaStore.clenupFns) {
+          cleanup.cleanup();
+        }
+      };
     }, [pastaStore]);
 
     return (

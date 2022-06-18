@@ -34,7 +34,11 @@ export const ExistingPastaItem = observer(
 
     return (
       <React.Fragment>
-        <Card variant="elevation" key={props.item._id}>
+        <Card
+          variant="elevation"
+          key={props.item._id}
+          sx={{ backgroundColor: props.item.color }}
+        >
           <CardHeader
             title={
               <React.Fragment>
@@ -91,7 +95,7 @@ export const ExistingPastaItem = observer(
               }}
               multiline
               fullWidth
-              variant="outlined"
+              variant="filled"
               minRows={10}
               value={props.item.content}
             />

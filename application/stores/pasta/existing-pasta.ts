@@ -3,8 +3,12 @@ import type { Pasta } from '../../../domain/pasta';
 import type { HttpClient } from '../../http-client/http-client';
 import { PastaEncryption } from '../encryption';
 import { CountdownTimer } from './countdown-timer';
+import stringToColor from 'string-to-color';
+import { Cleanup, Export } from '../../services/export';
 
 export class ExistingPasta implements Pasta {
+  private readonly export = new Export();
+
   private _decryptedContent: string | null = null;
 
   private _countdownTimer = new CountdownTimer({
@@ -22,9 +26,14 @@ export class ExistingPasta implements Pasta {
       httpClient: HttpClient;
       removeFromList: () => void;
       restore: () => void;
+      addCleanup: (cleanup: Cleanup) => void;
     }
   ) {
     makeAutoObservable(this, {}, { autoBind: true });
+  }
+
+  public get color() {
+    return stringToColor(this.source.content);
   }
 
   public get _id() {
@@ -65,6 +74,22 @@ export class ExistingPasta implements Pasta {
     } catch (e) {
       this.params.restore();
     }
+  }
+
+  public get canBeDownloaded() {
+    return !this.encrypted || this._decryptedContent !== null;
+  }
+
+  public download() {
+    const content = this.source.encrypted
+      ? this._decryptedContent
+      : this.source.content;
+    if (content === null) {
+      throw new Error("Can't download encrypted file");
+    }
+    this.params.addCleanup(
+      this.export.downloader.download(content, `${this.source.name}.txt`)
+    );
   }
 
   public decryptForMS(

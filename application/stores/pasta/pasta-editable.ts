@@ -2,14 +2,20 @@ import { makeAutoObservable } from 'mobx';
 import type { Pasta } from '../../../domain/pasta';
 import { Cloneable } from '../../../lib/cloneable';
 import { PastaEncryption } from '../encryption';
+import { Cleanup, Export } from '../../services/export';
 
 export class PastaEditable
   implements
     Omit<Pasta, '_id' | 'email' | 'dateCreated'>,
     Cloneable<PastaEditable>
 {
+  private exportService = new Export();
+
   public constructor(
-    private readonly params: { onSave: (pasta: PastaEditable) => void }
+    private readonly params: {
+      onSave: (pasta: PastaEditable) => void;
+      addCleanup: (cleanup: Cleanup) => void;
+    }
   ) {
     makeAutoObservable(this, {}, { autoBind: true });
   }
@@ -65,5 +71,11 @@ export class PastaEditable
 
   public get canBeSaved() {
     return this._name !== '' && this._content !== '';
+  }
+
+  public download() {
+    this.params.addCleanup(
+      this.exportService.downloader.download(this._content, `${this._name}.txt`)
+    );
   }
 }

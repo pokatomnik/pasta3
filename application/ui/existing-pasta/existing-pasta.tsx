@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { Menu, MenuItem, Snackbar } from '@mui/material';
+import { Menu, MenuItem } from '@mui/material';
 import { PastaStore } from '../../stores/pasta';
 import { ExistingPasta } from '../../stores/pasta/existing-pasta';
 import { ExistingPastaItem } from './existing-pasta-item';
 import { PastaEncryption } from '../../stores/encryption';
+import { useSimpleSnack } from '../snack';
 
 interface IMenuClosed {
   open: false;
@@ -20,7 +21,7 @@ interface IMenuOpen {
 }
 
 export const ExistingPastaList = PastaStore.modelClient((props) => {
-  const [snackbarShow, setSnackbarShow] = React.useState(false);
+  const { showSnack, snackJSX } = useSimpleSnack();
   const [menuState, setMenuState] = React.useState<IMenuOpen | IMenuClosed>({
     open: false,
     el: null,
@@ -40,7 +41,7 @@ export const ExistingPastaList = PastaStore.modelClient((props) => {
 
   const decrypt = () => {
     menuState.pasta?.decryptForMS(menuState.algorithm, 30 * 1000, () => {
-      setSnackbarShow(true);
+      showSnack('Failed to decrypt');
     });
     setMenuState({
       open: false,
@@ -81,7 +82,14 @@ export const ExistingPastaList = PastaStore.modelClient((props) => {
           });
         }}
       >
-        <MenuItem onClick={() => {}}>Download</MenuItem>
+        <MenuItem
+          disabled={!menuState.pasta?.canBeDownloaded}
+          onClick={() => {
+            menuState.pasta?.download();
+          }}
+        >
+          Download
+        </MenuItem>
         <MenuItem onClick={tryRemovePasta}>Delete</MenuItem>
         {menuState.pasta?.encrypted && (
           <MenuItem disabled={menuState.pasta?.isDecrypted} onClick={decrypt}>
@@ -89,14 +97,7 @@ export const ExistingPastaList = PastaStore.modelClient((props) => {
           </MenuItem>
         )}
       </Menu>
-      <Snackbar
-        open={snackbarShow}
-        onClose={() => {
-          setSnackbarShow(false);
-        }}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        message="Failed to decrypt"
-      />
+      {snackJSX}
     </React.Fragment>
   );
 });
