@@ -44,7 +44,10 @@ export const NewPasta = PastaStore.modelClient((props) => {
     setAnchorEl(null);
   };
 
-  const downloadAsFile = () => {};
+  const downloadAsFile = () => {
+    props.pastaStore.newPasta.download();
+    closeMenu();
+  };
 
   const save = async () => {
     if (props.pastaStore.newPasta.canBeSaved) {
@@ -124,7 +127,12 @@ export const NewPasta = PastaStore.modelClient((props) => {
                   open={menuOpen}
                   onClose={closeMenu}
                 >
-                  <MenuItem onClick={downloadAsFile}>Download</MenuItem>
+                  <MenuItem
+                    onClick={downloadAsFile}
+                    disabled={!props.pastaStore.canBeDownloaded}
+                  >
+                    Download
+                  </MenuItem>
                   <MenuItem
                     onClick={save}
                     disabled={!props.pastaStore.canBeSaved}

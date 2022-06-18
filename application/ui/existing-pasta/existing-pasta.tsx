@@ -82,7 +82,14 @@ export const ExistingPastaList = PastaStore.modelClient((props) => {
           });
         }}
       >
-        <MenuItem onClick={() => {}}>Download</MenuItem>
+        <MenuItem
+          disabled={!menuState.pasta?.canBeDownloaded}
+          onClick={() => {
+            menuState.pasta?.download();
+          }}
+        >
+          Download
+        </MenuItem>
         <MenuItem onClick={tryRemovePasta}>Delete</MenuItem>
         {menuState.pasta?.encrypted && (
           <MenuItem disabled={menuState.pasta?.isDecrypted} onClick={decrypt}>
