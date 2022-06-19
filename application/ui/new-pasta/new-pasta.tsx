@@ -15,6 +15,8 @@ import {
   FormControlLabel,
   Tooltip,
 } from '@mui/material';
+import { useSession } from 'next-auth/react';
+import { signIn } from 'next-auth/react';
 import { PastaStore } from '../../stores/pasta';
 import { EncryptionSelector } from '../encryption-selector';
 import { useModal } from '../modal';
@@ -24,6 +26,8 @@ import { PastaEncryption, NoEncryption } from '../../stores/encryption';
 export const NewPasta = PastaStore.modelClient((props) => {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
+
+  const session = useSession();
 
   const { modalJSX, openDialog } = useModal<string>();
 
@@ -50,7 +54,9 @@ export const NewPasta = PastaStore.modelClient((props) => {
   };
 
   const save = async () => {
-    if (props.pastaStore.newPasta.canBeSaved) {
+    if (!session.data) {
+      signIn();
+    } else if (props.pastaStore.newPasta.canBeSaved) {
       const algorithm = props.pastaStore.newPasta.encrypted
         ? encryptionAlgorithm
         : new PastaEncryption({
@@ -135,7 +141,7 @@ export const NewPasta = PastaStore.modelClient((props) => {
                   </MenuItem>
                   <MenuItem
                     onClick={save}
-                    disabled={!props.pastaStore.canBeSaved}
+                    disabled={!props.pastaStore.newPasta.canBeSaved}
                   >
                     Save
                   </MenuItem>

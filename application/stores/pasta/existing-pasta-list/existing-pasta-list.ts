@@ -1,9 +1,9 @@
 import { makeAutoObservable, observable, runInAction } from 'mobx';
 import { Session } from 'next-auth';
-import type { HttpClient } from '../../http-client/http-client';
-import { Cleanup } from '../../services/export';
-import { ExistingPasta } from './existing-pasta';
-import { PastaEditable } from './pasta-editable';
+import type { HttpClient } from '../../../http-client/http-client';
+import { Cleanup } from '../../../services/export';
+import { ExistingPasta } from '../existing-pasta';
+import { PastaEditable } from '../pasta-editable';
 
 export class ExistingPastaList {
   private readonly map: Map<string, ExistingPasta> = observable.map();

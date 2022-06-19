@@ -8,9 +8,17 @@ import { PastaEditable } from './pasta-editable';
 import { useSession } from 'next-auth/react';
 import { useHttpClient } from '../../http-client/consumer';
 import { Cleanup } from '../../services/export';
+import {
+  useSubscriber,
+  useDispatcher,
+  makeBroadcastProvider,
+} from '../../services/broadcast';
 
 export class Store {
-  private readonly clenupFns = new Set<Cleanup>();
+  private static readonly BroadcastProvider =
+    makeBroadcastProvider('pasta:new');
+
+  private readonly cleanupFns = new Array<Cleanup>();
 
   private readonly _newPasta: PastaEditable;
 
@@ -20,6 +28,8 @@ export class Store {
     private readonly params: {
       httpClient: HttpClient;
       session: Session | null;
+      dispatcher: ReturnType<typeof useDispatcher>;
+      subscriber: ReturnType<typeof useSubscriber>;
     }
   ) {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -27,7 +37,7 @@ export class Store {
       httpClient: params.httpClient,
       session: params.session,
       addCleanup: (cleanup) => {
-        this.clenupFns.add(cleanup);
+        this.cleanupFns.push(cleanup);
       },
       onNewSaveError: () => {
         // TODO handle this
@@ -36,8 +46,7 @@ export class Store {
         // TODO handle this
       },
       onSaveNewSuccess: () => {
-        this._newPasta.setName('');
-        this._newPasta.setContent('');
+        this._newPasta.reset();
       },
     });
     this._newPasta = new PastaEditable({
@@ -45,8 +54,10 @@ export class Store {
         this._existingPastas.saveNew(pasta);
       },
       addCleanup: (cleanup) => {
-        this.clenupFns.add(cleanup);
+        this.cleanupFns.push(cleanup);
       },
+      dispatcher: params.dispatcher,
+      subscriber: params.subscriber,
     });
   }
 
@@ -77,15 +88,27 @@ export class Store {
   private static PastaStoreProvider(props: React.PropsWithChildren<object>) {
     const session = useSession().data;
     const httpClient = useHttpClient();
+    const broadcastDispatcher = useDispatcher();
+    const broadcastSubscriber = useSubscriber();
     const pastaStore = React.useMemo(() => {
-      return new Store({ session, httpClient });
-    }, [session?.user?.email, httpClient]);
+      return new Store({
+        session,
+        httpClient,
+        dispatcher: broadcastDispatcher,
+        subscriber: broadcastSubscriber,
+      });
+    }, [
+      session?.user?.email,
+      httpClient,
+      broadcastDispatcher,
+      broadcastSubscriber,
+    ]);
 
     React.useEffect(() => {
       pastaStore._existingPastas.reload();
       return () => {
-        for (const cleanup of pastaStore.clenupFns) {
-          cleanup.cleanup();
+        while (pastaStore.cleanupFns.length > 0) {
+          pastaStore.cleanupFns.shift()?.cleanup();
         }
       };
     }, [pastaStore]);
@@ -102,9 +125,11 @@ export class Store {
   ) {
     function Wrapped(props: P) {
       return (
-        <Store.PastaStoreProvider>
-          <Component {...props} />
-        </Store.PastaStoreProvider>
+        <Store.BroadcastProvider>
+          <Store.PastaStoreProvider>
+            <Component {...props} />
+          </Store.PastaStoreProvider>
+        </Store.BroadcastProvider>
       );
     }
     Wrapped.displayName = Component.displayName;
