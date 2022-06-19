@@ -7,7 +7,7 @@ import { useDispatcher, useSubscriber } from '../../../services/broadcast';
 import type { Serializer } from '../../../../lib/serialization';
 import type { PastaData } from './pasta-data';
 import { LocalEdits } from './local-edits';
-import { CrossplatformStorage } from './crossplaform-storage';
+import { SSRFriendlyLocalStorage } from './local-storage';
 
 export class PastaEditable implements PastaData, Cloneable<PastaEditable> {
   private readonly broadcastSerializer: Serializer<PastaData> = JSON;
@@ -16,7 +16,7 @@ export class PastaEditable implements PastaData, Cloneable<PastaEditable> {
 
   private readonly localEdits = new LocalEdits({
     key: 'pasta:new',
-    persistentStorage: CrossplatformStorage.getInstance(),
+    persistentStorage: SSRFriendlyLocalStorage.getInstance(),
     serializer: this.persistentStorageSerializer,
   });
 

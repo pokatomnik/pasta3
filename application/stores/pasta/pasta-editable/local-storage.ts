@@ -1,6 +1,6 @@
 import { PersistentStorage } from '../../../../lib/persistent-storage';
 
-export class CrossplatformStorage {
+export class SSRFriendlyLocalStorage {
   private static storageMock: PersistentStorage = {
     getItem(): string | null {
       return null;
@@ -15,10 +15,10 @@ export class CrossplatformStorage {
       if (window.localStorage) {
         return window.localStorage;
       } else {
-        return CrossplatformStorage.storageMock;
+        return SSRFriendlyLocalStorage.storageMock;
       }
     } catch (e) {
-      return CrossplatformStorage.storageMock;
+      return SSRFriendlyLocalStorage.storageMock;
     }
   }
 }
