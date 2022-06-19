@@ -22,8 +22,11 @@ import { EncryptionSelector } from '../encryption-selector';
 import { useModal } from '../modal';
 import { PassPrompt } from '../pass-prompt';
 import { PastaEncryption, NoEncryption } from '../../stores/encryption';
+import { useSimpleSnack } from '../snack';
 
 export const NewPasta = PastaStore.modelClient((props) => {
+  const { showSnack, snackJSX } = useSimpleSnack();
+
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
 
@@ -50,11 +53,19 @@ export const NewPasta = PastaStore.modelClient((props) => {
 
   const downloadAsFile = () => {
     props.pastaStore.newPasta.download();
+    showSnack('Download started');
     closeMenu();
   };
 
   const copyAsText = () => {
-    props.pastaStore.newPasta.copyToClipboard();
+    props.pastaStore.newPasta
+      .copyToClipboard()
+      .then(() => {
+        showSnack('Content copied to clipboard');
+      })
+      .catch(() => {
+        showSnack('Failed to copy:(');
+      });
     closeMenu();
   };
 
@@ -176,6 +187,7 @@ export const NewPasta = PastaStore.modelClient((props) => {
         </CardContent>
       </Card>
       {modalJSX}
+      {snackJSX}
     </React.Fragment>
   );
 });

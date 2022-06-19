@@ -168,6 +168,6 @@ export class PastaEditable implements PastaData, Cloneable<PastaEditable> {
   }
 
   public copyToClipboard() {
-    this.params.exportService.clipboard.copyText(this._content);
+    return this.params.exportService.clipboard.copyText(this._content);
   }
 }
