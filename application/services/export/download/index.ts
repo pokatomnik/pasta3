@@ -1,1 +1,1 @@
-export { Downloader, Mime, type Cleanup } from './downloader';
+export { Downloader, Mime } from './downloader';

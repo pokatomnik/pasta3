@@ -1,9 +1,10 @@
 import { makeAutoObservable, observable, runInAction } from 'mobx';
 import { Session } from 'next-auth';
 import type { HttpClient } from '../../../http-client/http-client';
-import { Cleanup } from '../../../services/export';
 import { ExistingPasta } from '../existing-pasta';
 import { PastaEditable } from '../pasta-editable';
+import type { Disposable } from '../../../../lib/disposable';
+import { Export } from '../../../services/export';
 
 export class ExistingPastaList {
   private readonly map: Map<string, ExistingPasta> = observable.map();
@@ -17,11 +18,12 @@ export class ExistingPastaList {
   public constructor(
     private readonly params: {
       session: Session | null;
+      exportService: Export;
       httpClient: HttpClient;
       onNewSaveError: (e: unknown) => void;
       onReloadError: (e: unknown) => void;
       onSaveNewSuccess: () => void;
-      addCleanup: (cleanup: Cleanup) => void;
+      addDisposable: (disposable: Disposable) => void;
     }
   ) {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -45,7 +47,8 @@ export class ExistingPastaList {
     };
     const newExistingPasta = new ExistingPasta(pastaMock, {
       removable: false,
-      addCleanup: this.params.addCleanup,
+      exportService: this.params.exportService,
+      addDisposable: this.params.addDisposable,
       httpClient: this.params.httpClient,
       removeFromList: () =>
         runInAction(() => {
@@ -68,7 +71,8 @@ export class ExistingPastaList {
       );
       const realExistingPasta = new ExistingPasta(realPasta, {
         removable: true,
-        addCleanup: this.params.addCleanup,
+        exportService: this.params.exportService,
+        addDisposable: this.params.addDisposable,
         httpClient: this.params.httpClient,
         removeFromList: () =>
           runInAction(() => {
@@ -94,7 +98,7 @@ export class ExistingPastaList {
 
   public async reload() {
     if (!this.params.session) {
-      return this.params.onReloadError('User unauthorized');
+      return;
     }
     try {
       const pasta = await this.params.httpClient.pastaClient.getAllPastas();
@@ -103,7 +107,8 @@ export class ExistingPastaList {
         for (const currentPasta of pasta) {
           const existingPasta = new ExistingPasta(currentPasta, {
             removable: true,
-            addCleanup: this.params.addCleanup,
+            exportService: this.params.exportService,
+            addDisposable: this.params.addDisposable,
             httpClient: this.params.httpClient,
             removeFromList: () =>
               runInAction(() => {

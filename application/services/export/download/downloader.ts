@@ -1,11 +1,8 @@
 import noop from 'lodash/noop';
+import type { Disposable } from '../../../../lib/disposable';
 
 export enum Mime {
   TEXT_CSV = 'text/csv',
-}
-
-export interface Cleanup {
-  cleanup: () => void;
 }
 
 export class Downloader {
@@ -38,11 +35,11 @@ export class Downloader {
     data: string,
     filename: string,
     mime: Mime = Mime.TEXT_CSV
-  ): Cleanup {
+  ): Disposable {
     const blob = new Blob([data], { type: mime });
     if (this.isLegacyBrowser()) {
       this.downloadBlobLegacy(blob, filename);
-      return { cleanup: noop };
+      return { isDisposed: false, dispose: noop };
     }
 
     const anchor = this.createHiddenAnchor();
@@ -54,8 +51,10 @@ export class Downloader {
     document.body.removeChild(anchor);
 
     return {
-      cleanup: () => {
+      isDisposed: false,
+      dispose() {
         URL.revokeObjectURL(objectURL);
+        this.isDisposed = true;
       },
     };
   }
