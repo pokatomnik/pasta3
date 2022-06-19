@@ -98,7 +98,7 @@ export class ExistingPastaList {
 
   public async reload() {
     if (!this.params.session) {
-      return this.params.onReloadError('User unauthorized');
+      return;
     }
     try {
       const pasta = await this.params.httpClient.pastaClient.getAllPastas();

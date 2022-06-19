@@ -15,6 +15,7 @@ import {
 import type { Disposable } from '../../../lib/disposable';
 import { DisposablesCollection } from '../../../lib/disposables-collection';
 import { Export } from '../../services/export';
+import { useSimpleSnack } from '../../ui/snack';
 
 export class Store implements Disposable {
   private static readonly BroadcastProvider =
@@ -28,14 +29,14 @@ export class Store implements Disposable {
 
   private readonly _existingPastas: ExistingPastaList;
 
-  public constructor(
-    private readonly params: {
-      httpClient: HttpClient;
-      session: Session | null;
-      dispatcher: ReturnType<typeof useDispatcher>;
-      subscriber: ReturnType<typeof useSubscriber>;
-    }
-  ) {
+  public constructor(params: {
+    httpClient: HttpClient;
+    session: Session | null;
+    dispatcher: ReturnType<typeof useDispatcher>;
+    subscriber: ReturnType<typeof useSubscriber>;
+    onReloadError: (e: unknown) => void;
+    onSaveError: (e: unknown) => void;
+  }) {
     makeAutoObservable(this, {}, { autoBind: true });
 
     const exportService = new Export({
@@ -60,11 +61,11 @@ export class Store implements Disposable {
       addDisposable: (disposable) => {
         this.disposablesCollection.addDisposable(disposable);
       },
-      onNewSaveError: () => {
-        // TODO handle this
+      onNewSaveError: (e) => {
+        params.onSaveError(e);
       },
-      onReloadError: () => {
-        // TODO handle this
+      onReloadError: (e) => {
+        params.onReloadError(e);
       },
       onSaveNewSuccess: () => {
         this._newPasta.reset();
@@ -94,12 +95,6 @@ export class Store implements Disposable {
     return this._newPasta;
   }
 
-  public resetNewPasta() {
-    this._newPasta.setContent('');
-    this._newPasta.setName('');
-    this._newPasta.setEncrypted(false);
-  }
-
   public dispose() {
     this.disposablesCollection.dispose();
     this.disposed = true;
@@ -113,21 +108,33 @@ export class Store implements Disposable {
 
   private static PastaStoreProvider(props: React.PropsWithChildren<object>) {
     const session = useSession().data;
+
     const httpClient = useHttpClient();
+
     const broadcastDispatcher = useDispatcher();
     const broadcastSubscriber = useSubscriber();
+
+    const { showSnack, snackJSX } = useSimpleSnack();
+
     const pastaStore = React.useMemo(() => {
       return new Store({
         session,
         httpClient,
         dispatcher: broadcastDispatcher,
         subscriber: broadcastSubscriber,
+        onReloadError: () => {
+          showSnack('Failed to fetch pasta');
+        },
+        onSaveError: () => {
+          showSnack('Failed to save new pasta');
+        },
       });
     }, [
       session?.user?.email,
       httpClient,
       broadcastDispatcher,
       broadcastSubscriber,
+      showSnack,
     ]);
 
     React.useEffect(() => {
@@ -140,6 +147,7 @@ export class Store implements Disposable {
     return (
       <Store.Context.Provider value={pastaStore}>
         {props.children}
+        {snackJSX}
       </Store.Context.Provider>
     );
   }
