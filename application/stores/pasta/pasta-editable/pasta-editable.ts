@@ -1,18 +1,40 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 import debounce from 'lodash/debounce';
-import type { Pasta } from '../../../../domain/pasta';
 import { Cloneable } from '../../../../lib/cloneable';
 import { PastaEncryption } from '../../encryption';
 import { Cleanup, Export } from '../../../services/export';
 import { useDispatcher, useSubscriber } from '../../../services/broadcast';
 import type { Serializer } from '../../../../lib/serialization';
-
-type PastaData = Omit<Pasta, '_id' | 'email' | 'dateCreated'>;
+import type { PastaData } from './pasta-data';
+import { LocalEdits } from './local-edits';
+import { CrossplatformStorage } from './crossplaform-storage';
 
 export class PastaEditable implements PastaData, Cloneable<PastaEditable> {
-  private serializer: Serializer<PastaData> = JSON;
+  private readonly broadcastSerializer: Serializer<PastaData> = JSON;
+
+  private readonly persistentStorageSerializer: Serializer<PastaData> = JSON;
+
+  private readonly localEdits = new LocalEdits({
+    key: 'pasta:new',
+    persistentStorage: CrossplatformStorage.getInstance(),
+    serializer: this.persistentStorageSerializer,
+  });
 
   private exportService = new Export();
+
+  private _name = '';
+
+  private _content = '';
+
+  private _encrypted = false;
+
+  private get json(): PastaData {
+    return {
+      name: this._name,
+      content: this._content,
+      encrypted: this._encrypted,
+    };
+  }
 
   public constructor(
     private readonly params: {
@@ -35,21 +57,26 @@ export class PastaEditable implements PastaData, Cloneable<PastaEditable> {
         }
       }),
     });
+    const savedPasta = this.localEdits.get();
+    if (savedPasta) {
+      this._name = savedPasta.name;
+      this._content = savedPasta.content;
+      this._encrypted = Boolean(savedPasta.encrypted);
+    }
   }
 
   private broadcastChanges = debounce(() => {
-    const pastaData: PastaData = {
-      name: this._name,
-      content: this._content,
-      encrypted: this._encrypted,
-    };
-    const serialized = this.serializer.stringify(pastaData);
+    const serialized = this.broadcastSerializer.stringify(this.json);
     this.params.dispatcher.dispatch(serialized);
+  }, 2000);
+
+  private saveToPersistentStorage = debounce(() => {
+    this.localEdits.set(this.json);
   }, 2000);
 
   private getParsedPasta(pastaJSON: string): PastaData | null {
     try {
-      return this.serializer.parse(pastaJSON);
+      return this.broadcastSerializer.parse(pastaJSON);
     } catch (e) {
       return null;
     }
@@ -62,31 +89,30 @@ export class PastaEditable implements PastaData, Cloneable<PastaEditable> {
     return modifier(pasta);
   }
 
-  private _name = '';
   public get name() {
     return this._name;
   }
   public setName(newName: string) {
     this._name = newName;
     this.broadcastChanges();
+    this.saveToPersistentStorage();
   }
 
-  private _content = '';
   public get content() {
     return this._content;
   }
   public setContent(newContent: string) {
     this._content = newContent;
     this.broadcastChanges();
+    this.saveToPersistentStorage();
   }
-
-  private _encrypted = false;
   public get encrypted() {
     return this._encrypted;
   }
   public setEncrypted(encrypted: boolean) {
     this._encrypted = encrypted;
     this.broadcastChanges();
+    this.saveToPersistentStorage();
   }
 
   public save(encryption: PastaEncryption) {
@@ -103,7 +129,7 @@ export class PastaEditable implements PastaData, Cloneable<PastaEditable> {
         );
       })
       .catch(() => {
-        console.error('Save cancelled');
+        console.warn('Save cancelled');
       });
   }
 
