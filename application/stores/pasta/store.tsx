@@ -46,8 +46,7 @@ export class Store {
         // TODO handle this
       },
       onSaveNewSuccess: () => {
-        this._newPasta.setName('');
-        this._newPasta.setContent('');
+        this._newPasta.reset();
       },
     });
     this._newPasta = new PastaEditable({

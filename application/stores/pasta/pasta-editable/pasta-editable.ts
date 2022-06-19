@@ -59,9 +59,13 @@ export class PastaEditable implements PastaData, Cloneable<PastaEditable> {
     });
     const savedPasta = this.localEdits.get();
     if (savedPasta) {
-      this._name = savedPasta.name;
-      this._content = savedPasta.content;
-      this._encrypted = Boolean(savedPasta.encrypted);
+      Promise.resolve(savedPasta).then((savedPasta) => {
+        runInAction(() => {
+          this._name = savedPasta.name;
+          this._content = savedPasta.content;
+          this._encrypted = Boolean(savedPasta.encrypted);
+        });
+      });
     }
   }
 
@@ -111,6 +115,14 @@ export class PastaEditable implements PastaData, Cloneable<PastaEditable> {
   }
   public setEncrypted(encrypted: boolean) {
     this._encrypted = encrypted;
+    this.broadcastChanges();
+    this.saveToPersistentStorage();
+  }
+
+  public reset() {
+    this._name = '';
+    this._content = '';
+    this._encrypted = false;
     this.broadcastChanges();
     this.saveToPersistentStorage();
   }
