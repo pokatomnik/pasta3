@@ -102,7 +102,7 @@ export class ExistingPasta implements Pasta {
     if (content === null) {
       throw new Error("Can't copy encrypted text");
     }
-    this.params.exportService.clipboard.copyText(content);
+    return this.params.exportService.clipboard.copyText(content);
   }
 
   public decryptForMS(
