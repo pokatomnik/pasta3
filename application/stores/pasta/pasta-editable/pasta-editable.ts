@@ -2,12 +2,13 @@ import { makeAutoObservable, runInAction } from 'mobx';
 import debounce from 'lodash/debounce';
 import { Cloneable } from '../../../../lib/cloneable';
 import { PastaEncryption } from '../../encryption';
-import { Cleanup, Export } from '../../../services/export';
-import { useDispatcher, useSubscriber } from '../../../services/broadcast';
+import { Export } from '../../../services/export';
+import { useDispatcher, useSubscriber } from '../../../../lib/broadcast';
 import type { Serializer } from '../../../../lib/serialization';
 import type { PastaData } from './pasta-data';
 import { LocalEdits } from './local-edits';
 import { SSRFriendlyLocalStorage } from './local-storage';
+import type { Disposable } from '../../../../lib/disposable';
 
 export class PastaEditable implements PastaData, Cloneable<PastaEditable> {
   private readonly broadcastSerializer: Serializer<PastaData> = JSON;
@@ -19,8 +20,6 @@ export class PastaEditable implements PastaData, Cloneable<PastaEditable> {
     persistentStorage: SSRFriendlyLocalStorage.getInstance(),
     serializer: this.persistentStorageSerializer,
   });
-
-  private exportService = new Export();
 
   private _name = '';
 
@@ -38,15 +37,19 @@ export class PastaEditable implements PastaData, Cloneable<PastaEditable> {
 
   public constructor(
     private readonly params: {
+      exportService: Export;
       dispatcher: ReturnType<typeof useDispatcher>;
       subscriber: ReturnType<typeof useSubscriber>;
       onSave: (pasta: PastaEditable) => void;
-      addCleanup: (cleanup: Cleanup) => void;
+      addDisposable: (disposable: Disposable) => void;
     }
   ) {
     makeAutoObservable(this, {}, { autoBind: true });
-    params.addCleanup({
-      cleanup: params.subscriber.subscribe((pastaJSON) => {
+
+    const disposable = {
+      isDisposed: false,
+      dispose: params.subscriber.subscribe((pastaJSON) => {
+        disposable.isDisposed = true;
         const parsedPasta = this.getParsedPasta(pastaJSON);
         if (parsedPasta !== null) {
           runInAction(() => {
@@ -56,7 +59,9 @@ export class PastaEditable implements PastaData, Cloneable<PastaEditable> {
           });
         }
       }),
-    });
+    };
+    params.addDisposable(disposable);
+
     const savedPasta = this.localEdits.get();
     if (savedPasta) {
       Promise.resolve(savedPasta).then((savedPasta) => {
@@ -149,9 +154,20 @@ export class PastaEditable implements PastaData, Cloneable<PastaEditable> {
     return this._name !== '' && this._content !== '';
   }
 
+  public get hasContent() {
+    return this._content !== '';
+  }
+
   public download() {
-    this.params.addCleanup(
-      this.exportService.downloader.download(this._content, `${this._name}.txt`)
+    this.params.addDisposable(
+      this.params.exportService.downloader.download(
+        this._content,
+        `${this._name}.txt`
+      )
     );
+  }
+
+  public copyToClipboard() {
+    return this.params.exportService.clipboard.copyText(this._content);
   }
 }

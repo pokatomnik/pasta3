@@ -2,14 +2,14 @@ import { SSRBroadcastChannel } from './ssr-broadcast-channel';
 import { MessagePacker } from './message-packer';
 import { BroadcastChannel, OnMessageHandler } from 'broadcast-channel';
 import * as Environment from './environment-detection';
-import { Cleanup } from '../export';
+import type { Disposable } from '../disposable';
 
-export class Broadcast implements Cleanup {
+export class Broadcast implements Disposable {
   private readonly messagePacker = new MessagePacker();
 
   private readonly broadcastChannel: BroadcastChannel<string>;
 
-  private isDisposed = false;
+  private _isDisposed = false;
 
   constructor(name: string) {
     this.broadcastChannel = Environment.select({
@@ -71,8 +71,12 @@ export class Broadcast implements Cleanup {
     return this.subscriber;
   }
 
-  public cleanup() {
-    this.isDisposed = true;
+  public get isDisposed() {
+    return this._isDisposed;
+  }
+
+  public dispose() {
+    this._isDisposed = true;
     this.broadcastChannel.close();
   }
 }

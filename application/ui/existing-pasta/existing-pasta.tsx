@@ -20,35 +20,52 @@ interface IMenuOpen {
   algorithm: PastaEncryption;
 }
 
+function getMenuOpenState(
+  el: HTMLElement,
+  pasta: ExistingPasta,
+  algorithm: PastaEncryption
+): IMenuOpen {
+  return { open: true, el, pasta, algorithm };
+}
+
+export function getMenuClosedState(): IMenuClosed {
+  return { open: false, el: null, pasta: null, algorithm: null };
+}
+
 export const ExistingPastaList = PastaStore.modelClient((props) => {
   const { showSnack, snackJSX } = useSimpleSnack();
-  const [menuState, setMenuState] = React.useState<IMenuOpen | IMenuClosed>({
-    open: false,
-    el: null,
-    pasta: null,
-    algorithm: null,
-  });
+  const [menuState, setMenuState] = React.useState<IMenuOpen | IMenuClosed>(
+    getMenuClosedState
+  );
 
   const tryRemovePasta = () => {
     menuState.pasta?.tryRemove();
-    setMenuState({
-      open: false,
-      el: null,
-      pasta: null,
-      algorithm: null,
-    });
+    setMenuState(getMenuClosedState);
   };
 
   const decrypt = () => {
     menuState.pasta?.decryptForMS(menuState.algorithm, 30 * 1000, () => {
       showSnack('Failed to decrypt');
     });
-    setMenuState({
-      open: false,
-      el: null,
-      pasta: null,
-      algorithm: null,
-    });
+    setMenuState(getMenuClosedState);
+  };
+
+  const handleCopy = () => {
+    menuState.pasta
+      ?.copyToClipboard()
+      .then(() => {
+        showSnack('Contents copied to clipboard');
+      })
+      .catch(() => {
+        showSnack('Failed to copy:(');
+      });
+    setMenuState(getMenuClosedState);
+  };
+
+  const handleDownload = () => {
+    menuState.pasta?.download();
+    showSnack('Download started');
+    setMenuState(getMenuClosedState);
   };
 
   return (
@@ -59,12 +76,7 @@ export const ExistingPastaList = PastaStore.modelClient((props) => {
             key={existingPasta._id}
             item={existingPasta}
             onMenuOpen={(el, algorithm) => {
-              setMenuState({
-                open: true,
-                el,
-                pasta: existingPasta,
-                algorithm,
-              });
+              setMenuState(getMenuOpenState(el, existingPasta, algorithm));
             }}
           />
         );
@@ -74,21 +86,20 @@ export const ExistingPastaList = PastaStore.modelClient((props) => {
         keepMounted
         open={menuState.open}
         onClose={() => {
-          setMenuState({
-            open: false,
-            el: null,
-            pasta: null,
-            algorithm: null,
-          });
+          setMenuState(getMenuClosedState);
         }}
       >
         <MenuItem
-          disabled={!menuState.pasta?.canBeDownloaded}
-          onClick={() => {
-            menuState.pasta?.download();
-          }}
+          disabled={!menuState.pasta?.canBeExported}
+          onClick={handleDownload}
         >
           Download
+        </MenuItem>
+        <MenuItem
+          disabled={!menuState.pasta?.canBeExported}
+          onClick={handleCopy}
+        >
+          Copy to clipboard
         </MenuItem>
         <MenuItem onClick={tryRemovePasta}>Delete</MenuItem>
         {menuState.pasta?.encrypted && (
