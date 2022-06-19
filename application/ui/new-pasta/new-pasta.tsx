@@ -53,6 +53,11 @@ export const NewPasta = PastaStore.modelClient((props) => {
     closeMenu();
   };
 
+  const copyAsText = () => {
+    props.pastaStore.newPasta.copyToClipboard();
+    closeMenu();
+  };
+
   const save = async () => {
     if (!session.data) {
       signIn();
@@ -135,9 +140,15 @@ export const NewPasta = PastaStore.modelClient((props) => {
                 >
                   <MenuItem
                     onClick={downloadAsFile}
-                    disabled={!props.pastaStore.canBeDownloaded}
+                    disabled={!props.pastaStore.newPasta.canBeSaved}
                   >
                     Download
+                  </MenuItem>
+                  <MenuItem
+                    onClick={copyAsText}
+                    disabled={!props.pastaStore.newPasta.hasContent}
+                  >
+                    Copy to clipboard
                   </MenuItem>
                   <MenuItem
                     onClick={save}

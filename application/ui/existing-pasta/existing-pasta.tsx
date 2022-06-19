@@ -83,12 +83,32 @@ export const ExistingPastaList = PastaStore.modelClient((props) => {
         }}
       >
         <MenuItem
-          disabled={!menuState.pasta?.canBeDownloaded}
+          disabled={!menuState.pasta?.canBeExported}
           onClick={() => {
             menuState.pasta?.download();
+            setMenuState({
+              open: false,
+              el: null,
+              pasta: null,
+              algorithm: null,
+            });
           }}
         >
           Download
+        </MenuItem>
+        <MenuItem
+          disabled={!menuState.pasta?.canBeExported}
+          onClick={() => {
+            menuState.pasta?.copyToClipboard();
+            setMenuState({
+              open: false,
+              el: null,
+              pasta: null,
+              algorithm: null,
+            });
+          }}
+        >
+          Copy to clipboard
         </MenuItem>
         <MenuItem onClick={tryRemovePasta}>Delete</MenuItem>
         {menuState.pasta?.encrypted && (

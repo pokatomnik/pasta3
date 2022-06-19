@@ -8,7 +8,7 @@ export function makeBroadcastProvider(name: string) {
 
     React.useEffect(() => {
       return () => {
-        broadcastRef.current.cleanup();
+        broadcastRef.current.dispose();
       };
     }, []);
 
