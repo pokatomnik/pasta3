@@ -13,7 +13,7 @@ function MyApp(props: {
 }) {
   const {
     Component,
-    pageProps: { session, pageProps },
+    pageProps: { session, ...pageProps },
   } = props;
 
   return (
