@@ -32,7 +32,7 @@ export function ApplicationTopBar() {
 
   return (
     <React.Fragment>
-      <AppBar position="static">
+      <AppBar position="fixed">
         <Toolbar>
           <IconButton
             size="large"
@@ -55,6 +55,7 @@ export function ApplicationTopBar() {
           </Box>
         </Toolbar>
       </AppBar>
+      <Toolbar />
       <SwipeableDrawer
         anchor="left"
         disableBackdropTransition={ios}
