@@ -9,7 +9,7 @@ import { NextHead } from '../lib/next-head';
 export default PastaStore.modelProvider(() => {
   return (
     <React.Fragment>
-      <NextHead title="Pasta" key="index" />
+      <NextHead title="Pasta3" key="index" />
       <ApplicationTopBar />
       <Box sx={{ flexFlow: 1, marginTop: '24px', marginBottom: '24px' }}>
         <Grid item container spacing={2} xs={12}>
