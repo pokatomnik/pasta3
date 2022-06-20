@@ -14,7 +14,7 @@ import { NextHead } from '../lib/next-head';
 const ModelClient = PastaStore.modelProvider(() => {
   return (
     <React.Fragment>
-      <NextHead title="Pasta3" key="index" />
+      <NextHead title="Pasta" key="index" />
       <ApplicationTopBar />
       <Box sx={{ flexFlow: 1, marginTop: '24px', marginBottom: '24px' }}>
         <Grid item container spacing={2} xs={12}>
