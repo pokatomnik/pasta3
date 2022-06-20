@@ -1,10 +1,12 @@
 import * as React from 'react';
 import { Box, Grid, Typography, Divider, Link } from '@mui/material';
 import { ApplicationTopBar } from '../application/ui/application-top-bar';
+import { NextHead } from '../lib/next-head';
 
 export default function FAQ() {
   return (
     <React.Fragment>
+      <NextHead title="Pasta - FAQ" key="faq" />
       <ApplicationTopBar />
       <Box sx={{ flexFlow: 1, marginTop: '24px', marginBottom: '24px' }}>
         <Grid item container spacing={2} xs={12}>

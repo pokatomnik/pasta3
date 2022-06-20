@@ -9,10 +9,12 @@ import { ExistingPastaList } from '../application/ui/existing-pasta';
 import { PastaStore } from '../application/stores/pasta';
 import { Store } from '../application/services/store';
 import { Pasta } from '../domain/pasta';
+import { NextHead } from '../lib/next-head';
 
 const ModelClient = PastaStore.modelProvider(() => {
   return (
     <React.Fragment>
+      <NextHead title="Pasta" key="index" />
       <ApplicationTopBar />
       <Box sx={{ flexFlow: 1, marginTop: '24px', marginBottom: '24px' }}>
         <Grid item container spacing={2} xs={12}>
