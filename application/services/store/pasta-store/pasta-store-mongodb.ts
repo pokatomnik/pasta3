@@ -47,18 +47,7 @@ export class PastaStore implements IPastaStore {
         .sort({ dateCreated: -1 })
         .skip(from)
         .limit(limit)
-        .exec()
-        .then((res) => {
-          return res.reduce((acc, current) => {
-            try {
-              const pasta = current?.toObject() ?? null;
-              if (pasta) {
-                acc.push(pasta);
-              }
-            } catch (e) {}
-            return acc;
-          }, []);
-        });
+        .exec();
     });
   }
 

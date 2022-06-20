@@ -16,7 +16,6 @@ import type { Disposable } from '../../../lib/disposable';
 import { DisposablesCollection } from '../../../lib/disposables-collection';
 import { Export } from '../../services/export';
 import { useSimpleSnack } from '../../ui/snack';
-import { Pasta } from '../../../domain/pasta';
 
 export class Store implements Disposable {
   private static readonly BroadcastProvider =
@@ -31,7 +30,6 @@ export class Store implements Disposable {
   private readonly _existingPastas: ExistingPastaList;
 
   public constructor(params: {
-    initialPasta: Array<Pasta>;
     httpClient: HttpClient;
     session: Session | null;
     dispatcher: ReturnType<typeof useDispatcher>;
@@ -59,7 +57,6 @@ export class Store implements Disposable {
     this._existingPastas = new ExistingPastaList({
       exportService,
       httpClient: params.httpClient,
-      initialPasta: params.initialPasta,
       session: params.session,
       addDisposable: (disposable) => {
         this.disposablesCollection.addDisposable(disposable);
@@ -109,9 +106,7 @@ export class Store implements Disposable {
 
   private static Context = React.createContext<Store | null>(null);
 
-  private static PastaStoreProvider(
-    props: React.PropsWithChildren<{ pasta: Array<Pasta> }>
-  ) {
+  private static PastaStoreProvider(props: React.PropsWithChildren<object>) {
     const session = useSession().data;
 
     const httpClient = useHttpClient();
@@ -125,7 +120,6 @@ export class Store implements Disposable {
       return new Store({
         session,
         httpClient,
-        initialPasta: props.pasta,
         dispatcher: broadcastDispatcher,
         subscriber: broadcastSubscriber,
         onReloadError: () => {
@@ -161,14 +155,10 @@ export class Store implements Disposable {
   public static modelProvider<P extends object>(
     Component: React.ComponentType<P>
   ) {
-    function Wrapped(
-      props: P & {
-        pasta: Array<Pasta>;
-      }
-    ) {
+    function Wrapped(props: P) {
       return (
         <Store.BroadcastProvider>
-          <Store.PastaStoreProvider pasta={props.pasta}>
+          <Store.PastaStoreProvider>
             <Component {...props} />
           </Store.PastaStoreProvider>
         </Store.BroadcastProvider>
