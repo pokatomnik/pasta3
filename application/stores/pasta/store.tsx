@@ -158,7 +158,7 @@ export class Store implements Disposable {
     );
   }
 
-  public static modelProvider<P extends Object>(
+  public static modelProvider<P extends object>(
     Component: React.ComponentType<P>
   ) {
     function Wrapped(
