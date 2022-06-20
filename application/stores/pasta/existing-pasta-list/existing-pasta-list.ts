@@ -5,7 +5,6 @@ import { ExistingPasta } from '../existing-pasta';
 import { PastaEditable } from '../pasta-editable';
 import type { Disposable } from '../../../../lib/disposable';
 import { Export } from '../../../services/export';
-import { Pasta } from '../../../../domain/pasta';
 
 export class ExistingPastaList {
   private readonly map: Map<string, ExistingPasta> = observable.map();
@@ -21,7 +20,6 @@ export class ExistingPastaList {
       session: Session | null;
       exportService: Export;
       httpClient: HttpClient;
-      initialPasta: Array<Pasta>;
       onNewSaveError: (e: unknown) => void;
       onReloadError: (e: unknown) => void;
       onSaveNewSuccess: () => void;
@@ -103,9 +101,7 @@ export class ExistingPastaList {
       return;
     }
     try {
-      const pasta = await (this.params.initialPasta.length > 0
-        ? this.params.initialPasta
-        : this.params.httpClient.pastaClient.getAllPastas());
+      const pasta = await this.params.httpClient.pastaClient.getAllPastas();
       runInAction(() => {
         this.map.clear();
         for (const currentPasta of pasta) {
