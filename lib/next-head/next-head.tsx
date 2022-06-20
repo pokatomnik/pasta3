@@ -4,13 +4,13 @@ import Head from 'next/head';
 export function NextHead(
   props: React.PropsWithChildren<{
     title: string;
-    key: string;
+    titleKey: string;
   }>
 ) {
   return (
     <Head>
       <title>{props.title}</title>
-      <meta property="og:title" content={props.title} key={props.key} />
+      <meta property="og:title" content={props.title} key={props.titleKey} />
       {props.children}
     </Head>
   );

@@ -6,7 +6,7 @@ import { NextHead } from '../lib/next-head';
 export default function Contacts() {
   return (
     <React.Fragment>
-      <NextHead title="Pasta - Contact" key="contact" />
+      <NextHead title="Pasta - Contact" titleKey="contact" />
       <ApplicationTopBar />
       <Box sx={{ flexFlow: 1, marginTop: '24px', marginBottom: '24px' }}>
         <Grid item container spacing={2} xs={12}>

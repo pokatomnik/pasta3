@@ -6,7 +6,7 @@ import { NextHead } from '../lib/next-head';
 export default function FAQ() {
   return (
     <React.Fragment>
-      <NextHead title="Pasta - FAQ" key="faq" />
+      <NextHead title="Pasta - FAQ" titleKey="faq" />
       <ApplicationTopBar />
       <Box sx={{ flexFlow: 1, marginTop: '24px', marginBottom: '24px' }}>
         <Grid item container spacing={2} xs={12}>
