@@ -1,22 +1,6 @@
 import * as React from 'react';
 import { TextField } from '@mui/material';
-
-function isSpace(character: string) {
-  return /\s/.test(character);
-}
-
-function getSelectedWord(selectionStart: number, value: string): string | null {
-  let start: number = selectionStart;
-  let end: number = selectionStart;
-  while (start - 1 >= 0 && !isSpace(value[start - 1]!)) {
-    --start;
-  }
-  while (end + 1 < value.length && !isSpace(value[end + 1]!)) {
-    ++end;
-  }
-  const word = value.slice(start, end + 1);
-  return word || null;
-}
+import { getSelectedWord } from './word-extractor';
 
 export function Editor(props: {
   minRows?: number;
