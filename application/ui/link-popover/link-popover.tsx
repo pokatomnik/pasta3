@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Popover, Paper, Typography, Link } from '@mui/material';
+import { Popover, Paper, Link } from '@mui/material';
 import LinkIcon from '@mui/icons-material/Link';
 
 const DEFAULT_MAX_URL_CHARS = 20;
