@@ -69,7 +69,16 @@ export class ExistingPasta implements Pasta {
       return;
     }
     try {
-      await this.params.httpClient.pastaClient.removePastaById(this._id);
+      const pastaRemoveInvocation =
+        this.params.httpClient.pastaClient.removePastaById(this._id);
+      this.params.addDisposable({
+        isDisposed: false,
+        dispose() {
+          this.isDisposed = true;
+          pastaRemoveInvocation.cancel();
+        },
+      });
+      await pastaRemoveInvocation.invoke();
       this.params.removeFromList();
     } catch (e) {
       this.params.restore();

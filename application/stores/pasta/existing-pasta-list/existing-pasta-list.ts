@@ -70,11 +70,20 @@ export class ExistingPastaList {
     });
 
     try {
-      const realPasta = await this.params.httpClient.pastaClient.createPasta(
-        pasta.name,
-        pasta.content,
-        pasta.encrypted
-      );
+      const pastaCreateInvocation =
+        this.params.httpClient.pastaClient.createPasta(
+          pasta.name,
+          pasta.content,
+          pasta.encrypted
+        );
+      this.params.addDisposable({
+        isDisposed: false,
+        dispose() {
+          this.isDisposed = true;
+          pastaCreateInvocation.cancel();
+        },
+      });
+      const realPasta = await pastaCreateInvocation.invoke();
       const realExistingPasta = new ExistingPasta(realPasta, {
         removable: true,
         exportService: this.params.exportService,
@@ -110,7 +119,16 @@ export class ExistingPastaList {
       runInAction(() => {
         this._arePastaLoading = true;
       });
-      const pasta = await this.params.httpClient.pastaClient.getAllPastas();
+      const getAllPastasInvocation =
+        this.params.httpClient.pastaClient.getAllPastas();
+      this.params.addDisposable({
+        isDisposed: false,
+        dispose() {
+          this.isDisposed = true;
+          getAllPastasInvocation.cancel();
+        },
+      });
+      const pasta = await getAllPastasInvocation.invoke();
       runInAction(() => {
         this.map.clear();
         for (const currentPasta of pasta) {
