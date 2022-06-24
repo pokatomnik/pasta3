@@ -23,9 +23,18 @@ import { useModal } from '../modal';
 import { PassPrompt } from '../pass-prompt';
 import { PastaEncryption, NoEncryption } from '../../stores/encryption';
 import { useSimpleSnack } from '../snack';
+import { Editor } from '../../../lib/editor';
+import { LinkPopover } from '../link-popover';
+import { looksLikeURL } from '../../../lib/url-checker';
 
 export const NewPasta = PastaStore.modelClient((props) => {
   const { showSnack, snackJSX } = useSimpleSnack();
+
+  const [clickedLink, setClickedLink] = React.useState<{
+    word: string;
+    clientX: number;
+    clientY: number;
+  } | null>(null);
 
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
@@ -40,6 +49,16 @@ export const NewPasta = PastaStore.modelClient((props) => {
 
   const [encryptionAlgorithm, setEncryptionAlgorithm] =
     React.useState<PastaEncryption | null>(null);
+
+  const onWordClick = (clickedWord: Exclude<typeof clickedLink, null>) => {
+    if (looksLikeURL(clickedWord.word)) {
+      setClickedLink(clickedWord);
+    }
+  };
+
+  const clearClickedLink = () => {
+    setClickedLink(null);
+  };
 
   const openMenu = (htmlEl: HTMLElement) => {
     setMenuOpen(true);
@@ -173,16 +192,26 @@ export const NewPasta = PastaStore.modelClient((props) => {
           }
         />
         <CardContent>
-          <TextField
-            multiline
-            fullWidth
-            variant="filled"
-            placeholder="A new Pasta content"
-            minRows={10}
-            value={props.pastaStore.newPasta.content}
+          <Editor
             onChange={(evt) => {
               props.pastaStore.newPasta.setContent(evt.currentTarget.value);
             }}
+            value={props.pastaStore.newPasta.content}
+            placeholder="A new Pasta content"
+            minRows={10}
+            onWordClick={(word) => {
+              onWordClick({
+                ...word,
+                clientY: word.clientY + 15,
+              });
+            }}
+          />
+          <LinkPopover
+            open={clickedLink !== null}
+            onClose={clearClickedLink}
+            x={clickedLink?.clientX ?? 0}
+            y={clickedLink?.clientY ?? 0}
+            url={clickedLink?.word ?? ''}
           />
         </CardContent>
       </Card>
