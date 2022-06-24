@@ -137,7 +137,7 @@ export class ExistingPastaList {
       this.params.onReloadError(e);
     } finally {
       runInAction(() => {
-        // this._arePastaLoading = false;
+        this._arePastaLoading = false;
       });
     }
   }
