@@ -1,4 +1,5 @@
 import * as React from 'react';
+import noop from 'lodash/noop';
 import {
   Card,
   CardHeader,
@@ -6,7 +7,6 @@ import {
   Typography,
   IconButton,
   CardContent,
-  TextField,
   LinearProgress,
 } from '@mui/material';
 import { MoreVert } from '@mui/icons-material';
@@ -16,15 +16,32 @@ import { EncryptionSelector } from '../encryption-selector';
 import { PastaEncryption, NoEncryption } from '../../stores/encryption';
 import { PassPrompt } from '../pass-prompt';
 import { useModal } from '../modal';
+import { Editor } from '../../../lib/editor';
+import { looksLikeURL } from '../../../lib/url-checker';
+import { LinkPopover } from '../link-popover';
 
 export const ExistingPastaItem = observer(
   (props: {
     item: ExistingPasta;
     onMenuOpen: (el: HTMLElement, algorithm: PastaEncryption) => void;
   }) => {
-    const inputRef = React.useRef<HTMLInputElement | null>(null);
-
     const { modalJSX, openDialog } = useModal<string>();
+
+    const [clickedLink, setClickedLink] = React.useState<{
+      word: string;
+      clientX: number;
+      clientY: number;
+    } | null>(null);
+
+    const onWordClick = (clickedWord: Exclude<typeof clickedLink, null>) => {
+      if (looksLikeURL(clickedWord.word)) {
+        setClickedLink(clickedWord);
+      }
+    };
+
+    const clearClickedLink = () => {
+      setClickedLink(null);
+    };
 
     const getPass = () => {
       return openDialog(PassPrompt);
@@ -88,16 +105,24 @@ export const ExistingPastaItem = observer(
             }
           />
           <CardContent>
-            <TextField
-              inputRef={inputRef}
-              onFocus={() => {
-                inputRef.current?.select();
-              }}
-              multiline
-              fullWidth
-              variant="filled"
-              minRows={10}
+            <Editor
+              selectAllAtFirstClick
               value={props.item.content}
+              minRows={10}
+              onChange={noop}
+              onWordClick={(word) => {
+                onWordClick({
+                  ...word,
+                  clientY: word.clientY + 15,
+                });
+              }}
+            />
+            <LinkPopover
+              open={clickedLink !== null}
+              onClose={clearClickedLink}
+              x={clickedLink?.clientX ?? 0}
+              y={clickedLink?.clientY ?? 0}
+              url={clickedLink?.word ?? ''}
             />
           </CardContent>
         </Card>

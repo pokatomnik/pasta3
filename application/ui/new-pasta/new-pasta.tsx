@@ -24,26 +24,17 @@ import { PassPrompt } from '../pass-prompt';
 import { PastaEncryption, NoEncryption } from '../../stores/encryption';
 import { useSimpleSnack } from '../snack';
 import { Editor } from '../../../lib/editor';
-import { LinkPopover } from './link-popover';
-
-function looksLikeURL(word: string): boolean {
-  return /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi.test(
-    word
-  );
-}
-
-interface IClickedWord {
-  word: string;
-  clientX: number;
-  clientY: number;
-}
+import { LinkPopover } from '../link-popover';
+import { looksLikeURL } from '../../../lib/url-checker';
 
 export const NewPasta = PastaStore.modelClient((props) => {
   const { showSnack, snackJSX } = useSimpleSnack();
 
-  const [clickedLink, setClickedLink] = React.useState<IClickedWord | null>(
-    null
-  );
+  const [clickedLink, setClickedLink] = React.useState<{
+    word: string;
+    clientX: number;
+    clientY: number;
+  } | null>(null);
 
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
@@ -59,7 +50,7 @@ export const NewPasta = PastaStore.modelClient((props) => {
   const [encryptionAlgorithm, setEncryptionAlgorithm] =
     React.useState<PastaEncryption | null>(null);
 
-  const onWordClick = (clickedWord: IClickedWord) => {
+  const onWordClick = (clickedWord: Exclude<typeof clickedLink, null>) => {
     if (looksLikeURL(clickedWord.word)) {
       setClickedLink(clickedWord);
     }
@@ -208,13 +199,11 @@ export const NewPasta = PastaStore.modelClient((props) => {
             value={props.pastaStore.newPasta.content}
             placeholder="A new Pasta content"
             minRows={10}
-            workClickedFeature={{
-              onClick: (word) => {
-                onWordClick({
-                  ...word,
-                  clientY: word.clientY + 15,
-                });
-              },
+            onWordClick={(word) => {
+              onWordClick({
+                ...word,
+                clientY: word.clientY + 15,
+              });
             }}
           />
           <LinkPopover

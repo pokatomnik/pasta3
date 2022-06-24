@@ -9,43 +9,55 @@ export function Editor(props: {
   ) => void;
   value: string;
   placeholder?: string;
-  workClickedFeature?: {
-    wordClickedFeatureLimit?: number;
-    onClick?: (params: {
-      word: string;
-      clientX: number;
-      clientY: number;
-    }) => void;
-  };
+  selectAllAtFirstClick?: boolean;
+  onWordClick?: (params: {
+    word: string;
+    clientX: number;
+    clientY: number;
+  }) => void;
 }) {
-  const wordClickedFeatureEnabled = Boolean(
-    props.workClickedFeature &&
-      props.value.length <
-        (props.workClickedFeature.wordClickedFeatureLimit ?? 200)
-  );
+  const shouldSelectAll = React.useRef(!props.selectAllAtFirstClick);
 
-  const ref = React.useRef<HTMLTextAreaElement | null>(null);
+  const inputRef = React.useRef<HTMLTextAreaElement | null>(null);
+
+  const trySelectWord = (evt: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    const selectionStart = inputRef.current?.selectionStart;
+    const selectionEnd = inputRef.current?.selectionEnd;
+    if (selectionStart !== selectionEnd) {
+      return;
+    }
+    const value = inputRef.current?.value;
+    if (selectionStart === undefined || value === undefined) {
+      return;
+    }
+    const word = getSelectedWord(selectionStart, value);
+    if (word !== null) {
+      props.onWordClick?.({
+        word,
+        clientX: evt.clientX,
+        clientY: evt.clientY,
+      });
+    }
+  };
+
+  const selectAllIfNotYet = () => {
+    if (shouldSelectAll.current) {
+      return false;
+    }
+    shouldSelectAll.current = true;
+    inputRef.current?.focus();
+    inputRef.current?.select();
+    return true;
+  };
 
   return (
     <TextField
       onClick={(evt) => {
-        if (!wordClickedFeatureEnabled) {
-          return;
-        }
-        const selectionStart = ref.current?.selectionStart;
-        const value = ref.current?.value;
-        if (selectionStart && value) {
-          const word = getSelectedWord(selectionStart, value);
-          if (word !== null) {
-            props.workClickedFeature?.onClick?.({
-              word,
-              clientX: evt.clientX,
-              clientY: evt.clientY,
-            });
-          }
+        if (!selectAllIfNotYet()) {
+          trySelectWord(evt);
         }
       }}
-      inputRef={ref}
+      inputRef={inputRef}
       multiline
       fullWidth
       variant="filled"
