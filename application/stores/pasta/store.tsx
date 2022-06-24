@@ -88,7 +88,7 @@ export class Store implements Disposable {
   }
 
   public get existingPastaList() {
-    return this._existingPastas.list;
+    return this._existingPastas;
   }
 
   public get newPasta() {

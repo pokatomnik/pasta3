@@ -70,7 +70,7 @@ export const ExistingPastaList = PastaStore.modelClient((props) => {
 
   return (
     <React.Fragment>
-      {props.pastaStore.existingPastaList.map((existingPasta) => {
+      {props.pastaStore.existingPastaList.list.map((existingPasta) => {
         return (
           <ExistingPastaItem
             key={existingPasta._id}
