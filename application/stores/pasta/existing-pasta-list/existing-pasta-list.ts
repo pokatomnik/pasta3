@@ -7,6 +7,12 @@ import type { Disposable } from '../../../../lib/disposable';
 import { Export } from '../../../services/export';
 
 export class ExistingPastaList {
+  private _arePastaLoading = false;
+
+  public get arePastaLoading() {
+    return this._arePastaLoading;
+  }
+
   private readonly map: Map<string, ExistingPasta> = observable.map();
 
   public get list() {
@@ -101,6 +107,9 @@ export class ExistingPastaList {
       return;
     }
     try {
+      runInAction(() => {
+        this._arePastaLoading = true;
+      });
       const pasta = await this.params.httpClient.pastaClient.getAllPastas();
       runInAction(() => {
         this.map.clear();
@@ -126,6 +135,10 @@ export class ExistingPastaList {
       });
     } catch (e) {
       this.params.onReloadError(e);
+    } finally {
+      runInAction(() => {
+        this._arePastaLoading = false;
+      });
     }
   }
 }
