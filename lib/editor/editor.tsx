@@ -15,6 +15,7 @@ export function Editor(props: {
     clientX: number;
     clientY: number;
   }) => void;
+  maxLength?: number;
 }) {
   const shouldSelectAll = React.useRef(!props.selectAllAtFirstClick);
 
@@ -52,14 +53,17 @@ export function Editor(props: {
 
   return (
     <TextField
+      multiline
+      fullWidth
+      inputProps={{
+        maxLength: props.maxLength,
+      }}
       onClick={(evt) => {
         if (!selectAllIfNotYet()) {
           trySelectWord(evt);
         }
       }}
       inputRef={inputRef}
-      multiline
-      fullWidth
       variant="filled"
       placeholder={props.placeholder}
       minRows={props.minRows}
