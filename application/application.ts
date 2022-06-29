@@ -1,6 +1,5 @@
 import Joi from 'joi';
 import { Router, Controller } from '../lib/router';
-import { HelloController } from './controllers/hello-controller';
 import { PastaController } from './controllers/pasta-controller';
 import type { IStore } from '../lib/store';
 import { Store } from './services/store';
@@ -13,7 +12,6 @@ export class Application {
 
   private readonly controllers = {
     notFound: new Controller(),
-    hello: new HelloController(),
     pasta: new PastaController({
       store: this.store,
       createValidator: Joi.object({
@@ -39,7 +37,6 @@ export class Application {
   private readonly router = new Router({
     notFoundHandler: this.controllers.notFound,
   })
-    .addHandler(this.urlSchema.hello().pattern, this.controllers.hello)
     .addHandler(this.urlSchema.pasta().pattern, this.controllers.pasta)
     .addHandler(this.urlSchema.pastaById().pattern, this.controllers.pasta)
     .addHandler(this.urlSchema.pastaFrom().pattern, this.controllers.pasta)
