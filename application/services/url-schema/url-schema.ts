@@ -10,15 +10,6 @@ export type InferParams<T extends keyof UrlSchema> = Parameters<
 export class UrlSchema {
   public constructor(private readonly params: { version: number }) {}
 
-  public hello(): Route<[]> {
-    return {
-      pattern: `/v${this.params.version}/hello`,
-      resolve() {
-        return this.pattern;
-      },
-    };
-  }
-
   public pasta(): Route<[]> {
     return {
       pattern: `/v${this.params.version}/pasta`,

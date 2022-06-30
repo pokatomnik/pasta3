@@ -1,24 +1,23 @@
-import * as React from 'react';
-import noop from 'lodash/noop';
-import {
-  Card,
-  CardHeader,
-  Stack,
-  Typography,
-  IconButton,
-  CardContent,
-  LinearProgress,
-} from '@mui/material';
 import { MoreVert } from '@mui/icons-material';
+import {
+  Box,
+  Card,
+  CardContent,
+  IconButton,
+  LinearProgress,
+  Typography,
+} from '@mui/material';
+import noop from 'lodash/noop';
 import { observer } from 'mobx-react';
-import { ExistingPasta } from '../../stores/pasta/existing-pasta';
-import { EncryptionSelector } from '../encryption-selector';
-import { PastaEncryption, NoEncryption } from '../../stores/encryption';
-import { PassPrompt } from '../pass-prompt';
-import { useModal } from '../modal';
+import * as React from 'react';
 import { Editor } from '../../../lib/editor';
 import { looksLikeURL } from '../../../lib/url-checker';
+import { NoEncryption, PastaEncryption } from '../../stores/encryption';
+import { ExistingPasta } from '../../stores/pasta/existing-pasta';
+import { EncryptionSelector } from '../encryption-selector';
 import { LinkPopover } from '../link-popover';
+import { useModal } from '../modal';
+import { PassPrompt } from '../pass-prompt';
 
 export const ExistingPastaItem = observer(
   (props: {
@@ -56,40 +55,50 @@ export const ExistingPastaItem = observer(
           key={props.item._id}
           sx={{ backgroundColor: props.item.color }}
         >
-          <CardHeader
-            title={
-              <React.Fragment>
-                <Stack direction="row">
-                  <Typography variant="h5" component="div" sx={{ flexGrow: 1 }}>
-                    {props.item.name}
-                  </Typography>
-                  {props.item.encrypted && !props.item.isDecrypted && (
-                    <EncryptionSelector
-                      onAlgorithmChange={(algorithm) => {
-                        algorithmRef.current = algorithm;
-                      }}
-                      requirePasss={getPass}
-                    />
-                  )}
-                  <IconButton
-                    aria-label="Menu"
-                    onClick={(evt) => {
-                      props.onMenuOpen(
-                        evt.currentTarget,
-                        algorithmRef.current ??
-                          new PastaEncryption({
-                            requirePass: () => Promise.resolve(''),
-                            symmetricEncrypion: new NoEncryption(),
-                          })
-                      );
-                    }}
-                  >
-                    <MoreVert />
-                  </IconButton>
-                </Stack>
-              </React.Fragment>
-            }
-          />
+          <Box
+            sx={{
+              padding: '16px 16px 0 16px',
+              display: 'flex',
+              justifyContent: 'flex-start',
+              alignItems: 'center',
+            }}
+          >
+            <Typography
+              variant="h5"
+              component="div"
+              sx={{
+                flexGrow: 1,
+                textOverflow: 'ellipsis',
+                overflow: 'hidden',
+                maxWidth: '100%',
+              }}
+            >
+              {props.item.name}
+            </Typography>
+            {props.item.encrypted && !props.item.isDecrypted && (
+              <EncryptionSelector
+                onAlgorithmChange={(algorithm) => {
+                  algorithmRef.current = algorithm;
+                }}
+                requirePasss={getPass}
+              />
+            )}
+            <IconButton
+              aria-label="Menu"
+              onClick={(evt) => {
+                props.onMenuOpen(
+                  evt.currentTarget,
+                  algorithmRef.current ??
+                    new PastaEncryption({
+                      requirePass: () => Promise.resolve(''),
+                      symmetricEncrypion: new NoEncryption(),
+                    })
+                );
+              }}
+            >
+              <MoreVert />
+            </IconButton>
+          </Box>
           <LinearProgress
             sx={{
               visibility:

@@ -26,6 +26,10 @@ import { useSimpleSnack } from '../snack';
 import { Editor } from '../../../lib/editor';
 import { LinkPopover } from '../link-popover';
 import { looksLikeURL } from '../../../lib/url-checker';
+import {
+  MAX_PASTA_LENGTH,
+  MAX_PASTA_TITLE_LENGTH,
+} from '../../validators/create-pasta';
 
 export const NewPasta = PastaStore.modelClient((props) => {
   const { showSnack, snackJSX } = useSimpleSnack();
@@ -118,6 +122,9 @@ export const NewPasta = PastaStore.modelClient((props) => {
                     fullWidth
                     placeholder="Name"
                     value={props.pastaStore.newPasta.name}
+                    inputProps={{
+                      maxLength: MAX_PASTA_TITLE_LENGTH,
+                    }}
                     onChange={(evt) => {
                       props.pastaStore.newPasta.setName(
                         evt.currentTarget.value
@@ -199,6 +206,7 @@ export const NewPasta = PastaStore.modelClient((props) => {
             value={props.pastaStore.newPasta.content}
             placeholder="A new Pasta content"
             minRows={10}
+            maxLength={MAX_PASTA_LENGTH}
             onWordClick={(word) => {
               onWordClick({
                 ...word,

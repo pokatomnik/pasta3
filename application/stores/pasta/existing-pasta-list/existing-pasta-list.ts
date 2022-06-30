@@ -5,6 +5,7 @@ import { ExistingPasta } from '../existing-pasta';
 import { PastaEditable } from '../pasta-editable';
 import type { Disposable } from '../../../../lib/disposable';
 import { Export } from '../../../services/export';
+import { createPastaValidator } from '../../../validators/create-pasta';
 
 export class ExistingPastaList {
   private _arePastaLoading = false;
@@ -70,6 +71,16 @@ export class ExistingPastaList {
     });
 
     try {
+      const isValid = !createPastaValidator().validate({
+        name: pasta.name,
+        content: pasta.content,
+        encrypted: pasta.encrypted,
+      }).error;
+
+      if (!isValid) {
+        throw new Error('Validation failed');
+      }
+
       const pastaCreateInvocation =
         this.params.httpClient.pastaClient.createPasta(
           pasta.name,
