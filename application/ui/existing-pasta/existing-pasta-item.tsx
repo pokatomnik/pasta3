@@ -1,6 +1,7 @@
 import * as React from 'react';
 import noop from 'lodash/noop';
 import {
+  Box,
   Card,
   CardHeader,
   Stack,
@@ -56,40 +57,50 @@ export const ExistingPastaItem = observer(
           key={props.item._id}
           sx={{ backgroundColor: props.item.color }}
         >
-          <CardHeader
-            title={
-              <React.Fragment>
-                <Stack direction="row">
-                  <Typography variant="h5" component="div" sx={{ flexGrow: 1 }}>
-                    {props.item.name}
-                  </Typography>
-                  {props.item.encrypted && !props.item.isDecrypted && (
-                    <EncryptionSelector
-                      onAlgorithmChange={(algorithm) => {
-                        algorithmRef.current = algorithm;
-                      }}
-                      requirePasss={getPass}
-                    />
-                  )}
-                  <IconButton
-                    aria-label="Menu"
-                    onClick={(evt) => {
-                      props.onMenuOpen(
-                        evt.currentTarget,
-                        algorithmRef.current ??
-                          new PastaEncryption({
-                            requirePass: () => Promise.resolve(''),
-                            symmetricEncrypion: new NoEncryption(),
-                          })
-                      );
-                    }}
-                  >
-                    <MoreVert />
-                  </IconButton>
-                </Stack>
-              </React.Fragment>
-            }
-          />
+          <Box
+            sx={{
+              padding: '16px 16px 0 16px',
+              display: 'flex',
+              justifyContent: 'flex-start',
+              alignItems: 'center',
+            }}
+          >
+            <Typography
+              variant="h5"
+              component="div"
+              sx={{
+                flexGrow: 1,
+                textOverflow: 'ellipsis',
+                overflow: 'hidden',
+                maxWidth: '100%',
+              }}
+            >
+              {props.item.name}
+            </Typography>
+            {props.item.encrypted && !props.item.isDecrypted && (
+              <EncryptionSelector
+                onAlgorithmChange={(algorithm) => {
+                  algorithmRef.current = algorithm;
+                }}
+                requirePasss={getPass}
+              />
+            )}
+            <IconButton
+              aria-label="Menu"
+              onClick={(evt) => {
+                props.onMenuOpen(
+                  evt.currentTarget,
+                  algorithmRef.current ??
+                    new PastaEncryption({
+                      requirePass: () => Promise.resolve(''),
+                      symmetricEncrypion: new NoEncryption(),
+                    })
+                );
+              }}
+            >
+              <MoreVert />
+            </IconButton>
+          </Box>
           <LinearProgress
             sx={{
               visibility:
